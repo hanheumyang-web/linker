@@ -3,56 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKER - 프로필 등록</title>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <title>LINKER - 등록</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg-color: #F2F2F7; --card-bg: #FFFFFF; --accent: #007AFF; --border: #E5E5EA; --text-sub: #86868B; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg-color); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .form-container { width: 100%; max-width: 400px; background: var(--card-bg); padding: 24px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h2 { font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center; }
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333; }
-        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; box-sizing: border-box; }
-        input:focus { outline: none; border-color: var(--accent); }
-        .btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .hint { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+        body { font-family: sans-serif; padding: 20px; background: #F2F2F7; }
+        .box { background: white; padding: 20px; border-radius: 15px; max-width: 400px; margin: auto; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #007AFF; color: white; border: none; border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h2>프로필 등록</h2>
-        <div class="input-group">
-            <label>닉네임</label>
-            <input type="text" id="nickname" placeholder="예: 유머러스한 토끼">
-        </div>
-        <div class="input-group">
-            <label>나이</label>
-            <input type="number" id="age" placeholder="예: 28">
-        </div>
-        <div class="input-group">
-            <label>직장</label>
-            <input type="text" id="job" placeholder="예: 삼성전자 연구원">
-        </div>
-        <div class="input-group">
-            <label>매칭 목적</label>
-            <input type="text" id="goal" placeholder="예: 진지한 만남, 커피 한 잔">
-        </div>
-        <div class="input-group">
-            <label>위치</label>
-            <input type="text" id="location" placeholder="예: 서울 강남, 경기 판교">
-        </div>
-        <div class="input-group">
-            <label>사진 URL (이미지 링크)</label>
-            <input type="text" id="image_url" placeholder="https://... 로 시작하는 링크">
-            <p class="hint">카톡이나 블로그에 올린 사진의 '이미지 주소 복사'를 해주세요.</p>
-        </div>
-        <div class="input-group">
-            <label>태그 (매력 포인트)</label>
-            <input type="text" id="tags" placeholder="예: #운동매니아, #요리왕, #비흡연">
-        </div>
-        <button id="submitBtn" class="btn" onclick="saveProfile()">등록하기</button>
+    <div class="box">
+        <h3>프로필 등록</h3>
+        <input type="text" id="nickname" placeholder="닉네임">
+        <input type="number" id="age" placeholder="나이">
+        <input type="text" id="job" placeholder="직업">
+        <input type="text" id="goal" placeholder="목적">
+        <input type="text" id="location" placeholder="지역">
+        <input type="text" id="image_url" placeholder="사진 URL (링크)">
+        <input type="text" id="tags" placeholder="태그 (예: #운동, #독서)">
+        <button id="btn" onclick="save()">등록하기</button>
     </div>
 
     <script>
@@ -60,42 +30,30 @@
         const mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
         const myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        async function saveProfile() {
-            const btn = document.getElementById('submitBtn');
-            const nickname = document.getElementById('nickname').value;
-            const age = document.getElementById('age').value;
-            const job = document.getElementById('job').value;
-            const goal = document.getElementById('goal').value;
-            const location = document.getElementById('location').value;
-            const image_url = document.getElementById('image_url').value; // 사진 주소 가져오기
-            const tags = document.getElementById('tags').value;
+        async function save() {
+            const btn = document.getElementById('btn');
+            const data = {
+                nickname: document.getElementById('nickname').value,
+                age: parseInt(document.getElementById('age').value),
+                job: document.getElementById('job').value,
+                goal: document.getElementById('goal').value,
+                location: document.getElementById('location').value,
+                image_url: document.getElementById('image_url').value,
+                tags: document.getElementById('tags').value
+            };
 
-            if(!nickname || !age || !job) { alert("필수 정보를 입력해주세요."); return; }
-            
             btn.disabled = true;
-            btn.innerText = "등록 중...";
+            btn.innerText = "저장 중...";
 
-            const { data, error } = await myDb
-                .from('profiles')
-                .insert([
-                    { 
-                        nickname, 
-                        age: parseInt(age), 
-                        job, 
-                        goal, 
-                        location, 
-                        image_url, // 사진 주소 DB에 저장
-                        tags 
-                    }
-                ]);
+            const { error } = await myDb.from('profiles').insert([data]);
 
             if (error) {
-                alert("등록 실패: " + error.message);
+                alert("실패: " + error.message);
                 btn.disabled = false;
                 btn.innerText = "등록하기";
             } else {
-                alert("프로필이 성공적으로 등록되었습니다!");
-                location.href = "index.html"; // 등록 후 메인으로 이동
+                alert("성공!");
+                location.href = "index.html";
             }
         }
     </script>
