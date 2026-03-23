@@ -3,91 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKER - 프라이빗 매칭</title>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <title>LINKER</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg-color: #F2F2F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-sub: #86868B; --accent: #007AFF; --border: #E5E5EA; }
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 400px; background: var(--bg-color); min-height: 100vh; }
-        .header { background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 16px; text-align: center; border-bottom: 0.5px solid var(--border); }
-        .header-title { font-size: 17px; font-weight: 600; }
-        #feed { padding-top: 16px; }
-        .feed-card { background: var(--card-bg); border-radius: 16px; margin: 0 16px 16px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-        .feed-header { display: flex; align-items: center; margin-bottom: 16px; }
-        .avatar { width: 44px; height: 44px; border-radius: 50%; background: #E5E5EA; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .user-info { display: flex; flex-direction: column; }
-        .nickname { font-size: 16px; font-weight: 600; }
-        
-        /* 📸 사진 스타일 수정 */
-        .profile-img { width: 100%; height: auto; border-radius: 12px; margin-bottom: 16px; display: block; object-fit: cover; }
-        .image-placeholder { width: 100%; height: 320px; background: #e5e5ea; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-sub); font-size: 13px; margin-bottom: 16px; }
-
-        .info-row { font-size: 15px; margin-bottom: 8px; line-height: 1.4; display: flex; }
-        .info-label { color: var(--text-sub); width: 80px; font-weight: 500; }
-        .tags { margin-top: 16px; margin-bottom: 20px; }
-        .tag { display: inline-block; background: var(--bg-color); color: var(--text-main); padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; margin: 0 4px 4px 0; }
-        .btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .loading { text-align: center; padding: 40px; color: var(--text-sub); }
+        body { font-family: sans-serif; background: #F2F2F7; margin: 0; padding: 20px; }
+        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .profile-img { width: 100%; border-radius: 10px; margin-bottom: 10px; display: block; }
+        .placeholder { width: 100%; height: 200px; background: #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #888; margin-bottom: 10px; }
+        h4 { margin: 10px 0; }
+        .tag { display: inline-block; background: #E5E5EA; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
+        .btn { width: 100%; padding: 15px; background: #007AFF; color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header"><div class="header-title">LINKER</div></div>
-        <div id="feed"><div class="loading">데이터를 불러오는 중입니다...</div></div>
-    </div>
+    <div id="feed"></div>
 
     <script>
         const mySupabaseUrl = 'https://txabwcjvexyalallvndi.supabase.co';
         const mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
         const myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        async function loadProfiles() {
+        async function load() {
+            const { data: profiles, error } = await myDb.from('profiles').select('*').order('created_at', { ascending: false });
+            if (error) return;
+
             const feed = document.getElementById('feed');
-            const { data: profiles, error } = await myDb.from('profiles').select('*');
+            feed.innerHTML = '';
 
-            if (error) { feed.innerHTML = '<div class="loading">에러: ' + error.message + '</div>'; return; }
-            if (!profiles || profiles.length === 0) { feed.innerHTML = '<div class="loading">아직 등록된 프로필이 없습니다.</div>'; return; }
-
-            profiles.reverse();
-            feed.innerHTML = ''; 
-
-            profiles.forEach(function(profile) {
-                const tagsHtml = (profile.tags || "").split(', ').map(tag => '<span class="tag">' + tag + '</span>').join('');
+            profiles.forEach(p => {
+                // 사진 주소가 있으면 img, 없으면 회색 박스
+                const img = p.image_url ? `<img src="${p.image_url}" class="profile-img">` : `<div class="placeholder">사진 없음</div>`;
                 
-                // 📸 사진이 있으면 표시, 없으면 회색 박스 표시
-                const photoHtml = profile.image_url 
-                    ? '<img src="' + profile.image_url + '" class="profile-img">' 
-                    : '<div class="image-placeholder">등록된 사진이 없습니다.</div>';
-
-                const cardHtml = `
-                    <div class="feed-card">
-                        <div class="feed-header">
-                            <div class="avatar">👤</div>
-                            <div class="user-info">
-                                <span class="nickname">@${profile.nickname}</span>
-                                <span style="font-size:12px; color:#86868b;">📍 지인 추천 완료</span>
-                            </div>
-                        </div>
-                        ${photoHtml}
-                        <div class="info-row"><span class="info-label">나이</span> ${profile.age}세</div>
-                        <div class="info-row"><span class="info-label">직장</span> ${profile.job}</div>
-                        <div class="info-row"><span class="info-label">목적</span> ${profile.goal}</div>
-                        <div class="info-row"><span class="info-label">위치</span> ${profile.location}</div>
-                        <div class="tags">${tagsHtml}</div>
-                        <button class="btn" onclick="requestMatch()">매칭 신청하기 (30,000원)</button>
-                    </div>`;
-                feed.innerHTML += cardHtml;
+                feed.innerHTML += `
+                    <div class="card">
+                        ${img}
+                        <h4>@${p.nickname} (${p.age}세)</h4>
+                        <p>${p.job} | ${p.location}</p>
+                        <p><b>목적:</b> ${p.goal}</p>
+                        <div>${(p.tags || "").split(',').map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                        <button class="btn" onclick="location.href='https://open.kakao.com/o/suwVPTmi'">매칭 신청하기</button>
+                    </div>
+                `;
             });
         }
-
-        window.requestMatch = () => {
-            if(confirm("매칭을 신청하시겠습니까?\n\n확인을 누르시면 매니저 카카오톡으로 연결됩니다.")) {
-                window.location.href = "https://open.kakao.com/o/suwVPTmi";
-            }
-        };
-
-        window.onload = loadProfiles;
+        load();
     </script>
 </body>
 </html>
