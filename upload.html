@@ -3,115 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKER - 프로필 등록</title>
+    <title>프로필 등록 - 프라이빗 매칭</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --bg-color: #F2F2F7; --card-bg: #FFFFFF; --accent: #007AFF; --border: #E5E5EA; --text-sub: #86868B; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg-color); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .form-container { width: 100%; max-width: 400px; background: var(--card-bg); padding: 24px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h2 { font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center; }
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; box-sizing: border-box; }
-        input:focus { outline: none; border-color: var(--accent); }
-        /* 파일 선택 버튼 스타일 추가 */
-        input[type="file"]::file-selector-button { background: #e1f0ff; color: var(--accent); border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 10px; }
-        .btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .btn:disabled { background: #ccc; }
-        .hint { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+        :root { --bg-color: #F2F2F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-sub: #86868B; --accent: #007AFF; --border: #C6C6C8; }
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; justify-content: center; -webkit-font-smoothing: antialiased; }
+        .app-container { width: 100%; max-width: 400px; min-height: 100vh; padding-bottom: 40px; }
+        .header { background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 16px; text-align: center; border-bottom: 0.5px solid var(--border); }
+        .header-title { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
+        .form-section-title { font-size: 13px; color: var(--text-sub); margin: 24px 16px 6px 32px; font-weight: 500; }
+        .form-group { background: var(--card-bg); border-radius: 10px; margin: 0 16px; overflow: hidden; }
+        .input-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid var(--border); }
+        .input-row:last-child { border-bottom: none; }
+        .input-label { width: 80px; font-size: 16px; font-weight: 500; }
+        input[type="text"], input[type="number"], select { flex: 1; border: none; outline: none; font-size: 16px; color: var(--text-sub); background: transparent; text-align: right; }
+        input::placeholder { color: #C7C7CC; }
+        select { direction: rtl; } 
+        .file-upload { color: var(--accent); font-size: 15px; }
+        .tags-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px; }
+        .tag-label { display: flex; align-items: center; font-size: 16px; color: var(--text-main); }
+        .tag-label input { margin-right: 10px; width: 20px; height: 20px; accent-color: var(--accent); }
+        .submit-btn { display: block; width: calc(100% - 32px); margin: 32px auto 0; padding: 16px; background: var(--accent); color: white; text-align: center; border-radius: 12px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; }
+        .submit-btn:active { opacity: 0.8; }
+        .submit-btn:disabled { background: #C7C7CC; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h2>프로필 등록</h2>
-        <div class="input-group"><label>닉네임</label><input type="text" id="nickname" placeholder="예: 유머러스한 토끼"></div>
-        <div class="input-group"><label>나이</label><input type="number" id="age" placeholder="예: 28"></div>
-        <div class="input-group"><label>직장</label><input type="text" id="job" placeholder="예: 삼성전자 연구원"></div>
-        <div class="input-group"><label>매칭 목적</label><input type="text" id="goal" placeholder="예: 진지한 만남"></div>
-        <div class="input-group"><label>위치</label><input type="text" id="location" placeholder="예: 서울 강남"></div>
-        
-        <div class="input-group">
-            <label>사진 등록 (파일 업로드)</label>
-            <input type="file" id="photo_file" accept="image/*">
-            <p class="hint">갤러리나 PC에서 실제 사진 파일을 선택해주세요.</p>
+    <div class="app-container">
+        <div class="header">
+            <div class="header-title">새 프로필 등록</div>
         </div>
-
-        <div class="input-group"><label>태그 (쉼표로 구분)</label><input type="text" id="tags" placeholder="예: #운동, #요리, #독서"></div>
-        <button id="submitBtn" class="btn" onclick="saveProfile()">등록하기</button>
+        
+        <div class="form-section-title">기본 정보</div>
+        <div class="form-group">
+            <div class="input-row">
+                <span class="input-label">사진</span>
+                <input type="file" id="photos" accept="image/*" multiple class="file-upload" style="width: 100%; text-align:right;">
+            </div>
+            <div class="input-row">
+                <span class="input-label">나이</span>
+                <input type="number" id="age" placeholder="예: 28">
+            </div>
+            <div class="input-row">
+                <span class="input-label">직장</span>
+                <input type="text" id="job" placeholder="예: IT 대기업 기획자">
+            </div>
+            <div class="input-row">
+                <span class="input-label">위치</span>
+                <input type="text" id="location" placeholder="예: 서울 강남구">
+            </div>
+            <div class="input-row">
+                <span class="input-label">목적</span>
+                <select id="goal">
+                    <option value="" disabled selected>선택</option>
+                    <option value="진지한 연애">진지한 연애</option>
+                    <option value="결혼 전제">결혼 전제</option>
+                    <option value="가벼운 만남">편한 친구 / 만남</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-section-title">매력 포인트 (최대 3개)</div>
+        <div class="form-group">
+            <div class="tags-grid" id="tagGroup" style="grid-template-columns: 1fr 1fr; max-height: 250px; overflow-y: auto; padding: 12px;">
+                <label class="tag-label"><input type="checkbox" value="#다정한"> 다정한</label>
+                <label class="tag-label"><input type="checkbox" value="#유머러스한"> 유머러스한</label>
+                <label class="tag-label"><input type="checkbox" value="#지적인"> 지적인</label>
+                <label class="tag-label"><input type="checkbox" value="#배려심_깊은"> 배려심 깊은</label>
+                <label class="tag-label"><input type="checkbox" value="#긍정적인"> 긍정적인 에너지</label>
+                <label class="tag-label"><input type="checkbox" value="#차분한"> 차분하고 신중한</label>
+                <label class="tag-label"><input type="checkbox" value="#솔직한"> 솔직한</label>
+                <label class="tag-label"><input type="checkbox" value="#예의_바른"> 예의 바른</label>
+                <label class="tag-label"><input type="checkbox" value="#책임감_강한"> 책임감 강한</label>
+                <label class="tag-label"><input type="checkbox" value="#리더십_있는"> 리더십 있는</label>
+                <label class="tag-label"><input type="checkbox" value="#자기관리"> 자기관리 철저한</label>
+                <label class="tag-label"><input type="checkbox" value="#운동매니아"> 운동을 즐기는</label>
+                <label class="tag-label"><input type="checkbox" value="#미식가"> 맛집잘알 미식가</label>
+                <label class="tag-label"><input type="checkbox" value="#여행러"> 여행을 사랑하는</label>
+                <label class="tag-label"><input type="checkbox" value="#집돌이_집순이"> 안락한 집순이</label>
+            </div>
+        </div>
+        
+        <button id="submitBtn" class="submit-btn" onclick="window.forceSubmit()">프로필 등록 완료</button>
     </div>
 
     <script>
-        const mySupabaseUrl = 'https://txabwcjvexyalallvndi.supabase.co';
-        const mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
-        const myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+        // 중복 선언 에러(SyntaxError)를 강제로 피하기 위해 const 대신 var를 사용했습니다.
+        var mySupabaseUrl = 'https://txabwcjvexyalallvndi.supabase.co';
+        var mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
+        var myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
-        async function saveProfile() {
-            const btn = document.getElementById('submitBtn');
-            const nickname = document.getElementById('nickname').value;
-            const age = document.getElementById('age').value;
-            const job = document.getElementById('job').value;
-            const goal = document.getElementById('goal').value;
-            const location = document.getElementById('location').value;
-            const tags = document.getElementById('tags').value;
+        var myAdjectives = ["다정한", "지적인", "유머러스한", "신중한", "차분한", "활기찬"];
+        var myNouns = ["쿼카", "사과", "거북이", "펭귄", "토끼", "체리"];
+
+        // 함수를 강제로 전역에 등록해서 클릭이 안 되는 현상 차단
+        window.forceSubmit = async function() {
+            var btn = document.getElementById('submitBtn');
+            var checkboxes = document.querySelectorAll('#tagGroup input:checked');
             
-            // 📸 사진 파일 가져오기
-            const photoFile = document.getElementById('photo_file').files[0];
-
-            if(!nickname || !age) { alert("닉네임과 나이는 필수입니다."); return; }
+            if(checkboxes.length > 3) { alert("매력 포인트는 최대 3개까지만 선택 가능합니다."); return; }
+            if(checkboxes.length === 0) { alert("매력 포인트를 최소 1개 이상 선택해주세요."); return; }
             
-            btn.disabled = true;
-            btn.innerText = "등록 중 (사진 업로드 포함)...";
-
-            let imageUrl = ''; // DB에 저장할 최종 이미지 주소
-
-            // 📸 1단계: 사진 파일이 있다면 Supabase Storage에 먼저 업로드
-            if (photoFile) {
-                // 파일 이름이 겹치지 않게 고유한 이름 만들기 (시간_파일명)
-                const fileName = `${Date.now()}_${photoFile.name}`;
-                
-                // *** IMPORTANT: Supabase Storage에 'photos' 버킷을 Public으로 미리 만들어야 작동함 ***
-                const { data: uploadData, error: uploadError } = await myDb.storage
-                    .from('photos') // storage 버킷 이름
-                    .upload(fileName, photoFile);
-
-                if (uploadError) {
-                    alert("사진 업로드 실패: " + uploadError.message);
-                    btn.disabled = false;
-                    btn.innerText = "등록하기";
-                    return; // 사진 업로드 실패하면 진행 중단
-                }
-
-                // 📸 2단계: 업로드된 사진의 Public URL 따오기
-                const { data: publicUrlData } = myDb.storage
-                    .from('photos')
-                    .getPublicUrl(fileName);
-
-                imageUrl = publicUrlData.publicUrl; // 최종 주소 획득
+            var age = document.getElementById('age').value;
+            var job = document.getElementById('job').value;
+            var location = document.getElementById('location').value;
+            var goal = document.getElementById('goal').value;
+            
+            if(!age || !job || !location || !goal) {
+                alert("모든 기본 정보를 빈칸 없이 입력해주세요."); return;
             }
 
-            // 📸 3단계: 프로필 데이터(사진 주소 포함)를 DB에 저장
-            const payload = {
-                nickname,
+            btn.disabled = true;
+            btn.innerText = "데이터 전송 중...";
+            
+            var tags = Array.from(checkboxes).map(function(cb) { return cb.value; }).join(', ');
+            var nickname = myAdjectives[Math.floor(Math.random() * myAdjectives.length)] + "_" + myNouns[Math.floor(Math.random() * myNouns.length)];
+            
+            var profileData = {
+                nickname: nickname,
                 age: parseInt(age),
-                job,
-                goal,
-                location,
-                image_url: imageUrl, // 따온 사진 주소 저장
-                tags
+                job: job,
+                location: location,
+                goal: goal,
+                tags: tags
             };
 
-            const { error: insertError } = await myDb.from('profiles').insert([payload]);
+            var { data, error } = await myDb.from('profiles').insert([profileData]);
 
-            if (insertError) {
-                alert("프로필 등록 실패: " + insertError.message);
+            if (error) {
+                alert("등록 실패: " + error.message);
+                console.error(error);
                 btn.disabled = false;
-                btn.innerText = "등록하기";
+                btn.innerText = "프로필 등록 완료";
             } else {
-                alert("등록 성공!");
-                location.href = "index.html";
+                alert("✅ 프로필 등록 완료!\n\n부여된 익명 닉네임: @" + nickname);
+                
+                // 로컬 환경(내 컴퓨터)에서 열었을 때 보안에 막히지 않고 넘어가도록 처리
+                if (window.location.protocol === 'file:') {
+                    window.location.href = 'index.html';
+                } else {
+                    window.location.assign('index.html');
+                }
             }
-        }
+        };
     </script>
 </body>
 </html>
