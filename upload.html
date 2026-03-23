@@ -15,6 +15,8 @@
         label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333; }
         input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; box-sizing: border-box; }
         input:focus { outline: none; border-color: var(--accent); }
+        /* 파일 선택 버튼 스타일 추가 */
+        input[type="file"]::file-selector-button { background: #e1f0ff; color: var(--accent); border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 10px; }
         .btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .btn:disabled { background: #ccc; }
         .hint { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
@@ -28,11 +30,13 @@
         <div class="input-group"><label>직장</label><input type="text" id="job" placeholder="예: 삼성전자 연구원"></div>
         <div class="input-group"><label>매칭 목적</label><input type="text" id="goal" placeholder="예: 진지한 만남"></div>
         <div class="input-group"><label>위치</label><input type="text" id="location" placeholder="예: 서울 강남"></div>
+        
         <div class="input-group">
-            <label>사진 URL (이미지 링크)</label>
-            <input type="text" id="image_url" placeholder="https://... 이미지 주소 복사">
-            <p class="hint">이미지를 우클릭하여 '이미지 주소 복사'한 값을 넣어주세요.</p>
+            <label>사진 등록 (파일 업로드)</label>
+            <input type="file" id="photo_file" accept="image/*">
+            <p class="hint">갤러리나 PC에서 실제 사진 파일을 선택해주세요.</p>
         </div>
+
         <div class="input-group"><label>태그 (쉼표로 구분)</label><input type="text" id="tags" placeholder="예: #운동, #요리, #독서"></div>
         <button id="submitBtn" class="btn" onclick="saveProfile()">등록하기</button>
     </div>
@@ -44,25 +48,63 @@
 
         async function saveProfile() {
             const btn = document.getElementById('submitBtn');
-            const payload = {
-                nickname: document.getElementById('nickname').value,
-                age: parseInt(document.getElementById('age').value),
-                job: document.getElementById('job').value,
-                goal: document.getElementById('goal').value,
-                location: document.getElementById('location').value,
-                image_url: document.getElementById('image_url').value,
-                tags: document.getElementById('tags').value
-            };
+            const nickname = document.getElementById('nickname').value;
+            const age = document.getElementById('age').value;
+            const job = document.getElementById('job').value;
+            const goal = document.getElementById('goal').value;
+            const location = document.getElementById('location').value;
+            const tags = document.getElementById('tags').value;
+            
+            // 📸 사진 파일 가져오기
+            const photoFile = document.getElementById('photo_file').files[0];
 
-            if(!payload.nickname || !payload.age) { alert("닉네임과 나이는 필수입니다."); return; }
+            if(!nickname || !age) { alert("닉네임과 나이는 필수입니다."); return; }
             
             btn.disabled = true;
-            btn.innerText = "등록 중...";
+            btn.innerText = "등록 중 (사진 업로드 포함)...";
 
-            const { error } = await myDb.from('profiles').insert([payload]);
+            let imageUrl = ''; // DB에 저장할 최종 이미지 주소
 
-            if (error) {
-                alert("실패: " + error.message);
+            // 📸 1단계: 사진 파일이 있다면 Supabase Storage에 먼저 업로드
+            if (photoFile) {
+                // 파일 이름이 겹치지 않게 고유한 이름 만들기 (시간_파일명)
+                const fileName = `${Date.now()}_${photoFile.name}`;
+                
+                // *** IMPORTANT: Supabase Storage에 'photos' 버킷을 Public으로 미리 만들어야 작동함 ***
+                const { data: uploadData, error: uploadError } = await myDb.storage
+                    .from('photos') // storage 버킷 이름
+                    .upload(fileName, photoFile);
+
+                if (uploadError) {
+                    alert("사진 업로드 실패: " + uploadError.message);
+                    btn.disabled = false;
+                    btn.innerText = "등록하기";
+                    return; // 사진 업로드 실패하면 진행 중단
+                }
+
+                // 📸 2단계: 업로드된 사진의 Public URL 따오기
+                const { data: publicUrlData } = myDb.storage
+                    .from('photos')
+                    .getPublicUrl(fileName);
+
+                imageUrl = publicUrlData.publicUrl; // 최종 주소 획득
+            }
+
+            // 📸 3단계: 프로필 데이터(사진 주소 포함)를 DB에 저장
+            const payload = {
+                nickname,
+                age: parseInt(age),
+                job,
+                goal,
+                location,
+                image_url: imageUrl, // 따온 사진 주소 저장
+                tags
+            };
+
+            const { error: insertError } = await myDb.from('profiles').insert([payload]);
+
+            if (insertError) {
+                alert("프로필 등록 실패: " + insertError.message);
                 btn.disabled = false;
                 btn.innerText = "등록하기";
             } else {
