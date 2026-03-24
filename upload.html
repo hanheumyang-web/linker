@@ -88,11 +88,11 @@
         <div class="form-section-title">주선자 정보 (비공개, 운영자만 확인)</div>
         <div class="form-group">
             <div class="input-row">
-                <span class="input-label" style="width: 100px;">주선자 이름</span>
-                <input type="text" id="referrer_name" placeholder="본인 이름 (예: 홍길동)">
+                <span class="input-label" style="width: 100px;">본인 이름</span>
+                <input type="text" id="referrer_name" placeholder="주선자 본인 이름">
             </div>
             <div class="input-row">
-                <span class="input-label" style="width: 100px;">연락처/카톡ID</span>
+                <span class="input-label" style="width: 100px;">연락처/카톡</span>
                 <input type="text" id="referrer_contact" placeholder="매칭 시 연락받을 곳">
             </div>
         </div>
@@ -123,6 +123,7 @@
             var referrerName = document.getElementById('referrer_name').value;
             var referrerContact = document.getElementById('referrer_contact').value;
             
+            // 필수 입력 체크
             if(!age || !job || !location || !goal || !referrerName || !referrerContact) {
                 alert("모든 기본 정보와 주선자 정보를 빈칸 없이 입력해주세요."); return;
             }
@@ -162,8 +163,8 @@
                 goal: goal,
                 tags: tags,
                 image_url: finalImageUrl,
-                referrer_name: referrerName, // 주선자 이름 저장
-                referrer_contact: referrerContact // 주선자 연락처 저장
+                referrer_name: referrerName,       // DB에만 저장됨
+                referrer_contact: referrerContact  // DB에만 저장됨
             };
 
             var { data, error } = await myDb.from('profiles').insert([profileData]);
