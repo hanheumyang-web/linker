@@ -55,7 +55,8 @@
 
         async function loadProfiles() {
             var feed = document.getElementById('feed');
-            var { data: profiles, error } = await myDb.from('profiles').select('*');
+            // 최신 글이 위로 오도록 가져오기
+            var { data: profiles, error } = await myDb.from('profiles').select('*').order('created_at', { ascending: false });
 
             if (error) {
                 feed.innerHTML = '<div class="loading">에러: ' + error.message + '</div>';
@@ -67,7 +68,6 @@
                 return;
             }
 
-            profiles.reverse();
             feed.innerHTML = ''; 
 
             profiles.forEach(function(profile) {
@@ -116,7 +116,7 @@
                         '<div class="info-row"><span class="info-label">목적</span> ' + profile.goal + '</div>' +
                         '<div class="info-row"><span class="info-label">위치</span> ' + profile.location + '</div>' +
                         '<div class="tags">' + tagsHtml + '</div>' +
-                        '<button class="btn" onclick="requestMatch(\'' + profile.nickname + '\')">매칭 신청하기 (30,000원)</button>' +
+                        '<button class="btn" onclick="requestMatch(\\'' + profile.nickname + '\\')">매칭 신청하기 (30,000원)</button>' +
                     '</div>';
                 feed.innerHTML += cardHtml;
             });
@@ -129,7 +129,7 @@
             if (!reqName || reqName.trim() === "") return;
 
             // 2. 신청자의 주선자 연락처 받기
-            var reqContact = prompt("주선자의 '연락처(또는 카톡ID)'를 입력해주세요.\n(매칭 성사 시 운영자가 이 번호로 연락드립니다.)");
+            var reqContact = prompt("주선자의 '연락처(또는 카톡ID)'를 입력해주세요.\\n(매칭 성사 시 운영자가 이 번호로 연락드립니다.)");
             if (!reqContact || reqContact.trim() === "") return;
 
             if(confirm("@" + targetNickname + " 님에게 매칭을 신청하시겠습니까?")) {
@@ -143,7 +143,7 @@
                 if (error) {
                     alert("매칭 신청 실패: " + error.message);
                 } else {
-                    alert("✅ 매칭 신청이 완료되었습니다!\n운영자가 양측 주선자 확인 후 개별 연락드립니다.");
+                    alert("✅ 매칭 신청이 완료되었습니다!\\n운영자가 양측 주선자 확인 후 개별 연락드립니다.");
                 }
             }
         };
