@@ -10,15 +10,16 @@
         body { font-family: 'Pretendard', sans-serif; background: #F2F4F6; margin: 0; padding: 20px; color: #191F28; }
         .container { max-width: 800px; margin: 0 auto; }
         h1 { margin-bottom: 20px; font-size: 24px; display: flex; align-items: center; justify-content: space-between; }
-        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #3182F6; }
-        .info-box { flex: 1; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-left: 5px solid #3182F6; position: relative; }
+        .ticket-badge { position: absolute; top: -12px; left: 16px; background: #191F28; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .info-box { flex: 1; min-width: 250px; margin-top: 10px; margin-bottom: 10px; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; margin-bottom: 12px; }
         .badge-requester { background: #E8F3FF; color: #3182F6; }
         .badge-target { background: #FFF4E6; color: #F08C00; }
-        .row { margin-bottom: 6px; font-size: 14px; }
-        .row strong { display: inline-block; width: 60px; color: #4E5968; }
-        .vs { font-size: 20px; font-weight: bold; color: #C6C6C8; margin: 0 30px; }
-        .status-btn { background: #3182F6; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .row { margin-bottom: 6px; font-size: 14px; line-height: 1.5; }
+        .row strong { display: inline-block; width: 70px; color: #8B95A1; font-weight: 500; }
+        .highlight { font-weight: 700; color: #191F28; }
+        .vs { font-size: 20px; font-weight: bold; color: #C6C6C8; margin: 0 20px; }
     </style>
 </head>
 <body>
@@ -28,8 +29,7 @@
     </div>
 
     <script>
-        // 🔒 간단한 비밀번호 보안 (원하는 대로 변경해)
-        if(prompt("관리자 비밀번호를 입력하세요:") !== "7498") {
+        if(prompt("관리자 비밀번호를 입력하세요:") !== "1234") {
             alert("비밀번호가 틀렸습니다.");
             document.body.innerHTML = "접근 거부됨";
         } else {
@@ -44,9 +44,7 @@
             var list = document.getElementById('requestList');
             list.innerHTML = '데이터를 불러오는 중...';
 
-            // 매칭 신청 내역 가져오기
             var { data: requests, error: reqErr } = await myDb.from('match_requests').select('*').order('created_at', { ascending: false });
-            // 전체 프로필(타겟의 주선자 정보를 찾기 위해) 가져오기
             var { data: profiles, error: profErr } = await myDb.from('profiles').select('*');
 
             if (reqErr || profErr) { list.innerHTML = '에러 발생!'; return; }
@@ -55,26 +53,32 @@
             list.innerHTML = '';
 
             requests.forEach(function(req) {
-                // 신청받은 타겟 프로필 찾기
                 var targetProfile = profiles.find(p => p.nickname === req.target_nickname) || {};
                 var targetReferrerName = targetProfile.referrer_name || "알 수 없음";
                 var targetReferrerContact = targetProfile.referrer_contact || "알 수 없음";
+                
+                var ticketNum = req.ticket_number || "#0000";
+                var myName = req.requester_my_name || "정보없음";
+                var myContact = req.requester_my_contact || "정보없음";
+                var refName = req.requester_referrer_name || "정보없음";
 
                 var card = `
                     <div class="card">
+                        <div class="ticket-badge">🎫 접수번호: ${ticketNum}</div>
                         <div class="info-box">
-                            <div class="badge badge-requester">🙋‍♂️ 신청자 측 주선자</div>
-                            <div class="row"><strong>이름</strong> ${req.requester_referrer_name}</div>
-                            <div class="row"><strong>연락처</strong> ${req.requester_referrer_contact}</div>
-                            <div class="row" style="color:#8B95A1; font-size:12px; margin-top:8px;">신청시간: ${new Date(req.created_at).toLocaleString()}</div>
+                            <div class="badge badge-requester">🙋‍♂️ 신청자 정보</div>
+                            <div class="row"><strong>본인이름</strong> <span class="highlight">${myName}</span></div>
+                            <div class="row"><strong>연락처</strong> <span class="highlight" style="color:#3182F6;">${myContact}</span></div>
+                            <div class="row"><strong>주선자</strong> ${refName} (지인)</div>
+                            <div class="row" style="color:#8B95A1; font-size:12px; margin-top:12px;">⏰ ${new Date(req.created_at).toLocaleString()}</div>
                         </div>
                         
-                        <div class="vs">▶️ 신청 ▶️</div>
+                        <div class="vs">▶️</div>
 
                         <div class="info-box">
-                            <div class="badge badge-target">🎯 지목받은 상대방: @${req.target_nickname}</div>
-                            <div class="row"><strong>주선자</strong> ${targetReferrerName}</div>
-                            <div class="row"><strong>연락처</strong> ${targetReferrerContact}</div>
+                            <div class="badge badge-target">🎯 지목받은 상대: @${req.target_nickname}</div>
+                            <div class="row"><strong>주선자</strong> <span class="highlight">${targetReferrerName}</span></div>
+                            <div class="row"><strong>연락처</strong> <span class="highlight" style="color:#F08C00;">${targetReferrerContact}</span></div>
                         </div>
                     </div>
                 `;
