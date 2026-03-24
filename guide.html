@@ -32,17 +32,29 @@
         .feature-text span { font-size: 13px; color: var(--text-light); line-height: 1.4; }
 
         .section { background: var(--card-bg); border-radius: 16px; padding: 24px 20px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; color: var(--text-main); }
-        .section-title span { background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 13px; margin-right: 8px; font-weight: bold; }
-
-        .step-item { margin-bottom: 14px; font-size: 14px; color: var(--text-sub); line-height: 1.5; }
-        .step-item b { color: var(--text-main); display: block; margin-bottom: 2px; }
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; color: var(--text-main); }
+        
+        /* 🚀 시각화된 진행 순서도 (인포그래픽) CSS */
+        .flow-container { position: relative; padding-top: 8px; }
+        .flow-item { display: flex; position: relative; padding-bottom: 32px; }
+        .flow-item:last-child { padding-bottom: 0; }
+        .flow-line { position: absolute; left: 24px; top: 48px; bottom: 0; width: 2px; background: #E5E5EA; z-index: 1; }
+        .flow-item:last-child .flow-line { display: none; }
+        .flow-icon { width: 48px; height: 48px; background: #F2F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; z-index: 2; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .flow-content { margin-left: 16px; padding-top: 2px; }
+        .flow-role { font-size: 12px; font-weight: 700; display: inline-block; padding: 4px 10px; border-radius: 6px; margin-bottom: 6px; }
+        .role-host { background: #E8F3FF; color: #3182F6; } /* 주선자 색상 */
+        .role-guest { background: #FFF4E6; color: #F08C00; } /* 참가자 색상 */
+        .role-other { background: #F2F4F6; color: #4E5968; } /* 제3자 색상 */
+        .flow-text { font-size: 15px; font-weight: 600; color: var(--text-main); line-height: 1.4; margin-bottom: 4px; }
+        .flow-subtext { font-size: 13px; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
+        
+        /* --------------------------------- */
         
         .link-box { background: var(--bg-color); padding: 16px; border-radius: 12px; margin-top: 12px; word-break: break-all; }
         .link-title { font-weight: 700; font-size: 14px; color: var(--accent); margin-bottom: 6px; display: block; }
         .link-url { font-size: 13px; color: var(--text-sub); display: block; margin-bottom: 12px; }
         
-        /* 버튼 그룹 (복사, 공유, 바로가기 3등분) */
         .btn-group { display: flex; gap: 6px; }
         .sub-btn { flex: 1; background: white; border: 1px solid var(--border); padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-sub); cursor: pointer; text-align: center; }
         .go-btn { flex: 1; background: var(--accent); border: 1px solid var(--accent); padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: 600; color: white; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; }
@@ -89,18 +101,59 @@
         </div>
 
         <div class="section">
-            <div class="section-title"><span>1</span> 진행 방법 및 단계</div>
-            <div class="step-item"><b>1. 프로필 등록</b> 주선자님께서 추천할 친구의 정보를 [등록 링크]를 통해 직접 입력합니다.</div>
-            <div class="step-item"><b>2. 검토 및 승인</b> 운영자가 정보를 확인한 후 실시간으로 메인 피드에 노출합니다.</div>
-            <div class="step-item"><b>3. 매칭 신청</b> 피드를 본 다른 유저가 [매칭 신청] 버튼을 누르면 운영자에게 연결됩니다.</div>
-            <div class="step-item"><b>4. 최종 연결</b> 양 측 10,000원 입금 후 (주선자에게 5,000원 지급) 운영자가 주선자님께 연락해 상대 프로필을 전달하고, 서로 수락 시 연결됩니다.</div>
-            <div class="step-item" style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); color: var(--accent);">
-                <b>※ 비용 공지</b> 비용은 무분별한 매칭 시도 방지와 실제 수요 확인을 위한 최소한의 허들로 이해해 주시면 감사하겠습니다.
+            <div class="section-title">👀 한눈에 보는 진행 방식</div>
+            <div class="flow-container">
+                
+                <div class="flow-item">
+                    <div class="flow-line"></div>
+                    <div class="flow-icon">📝</div>
+                    <div class="flow-content">
+                        <div class="flow-role role-host">1. 주선자</div>
+                        <div class="flow-text">지인(참가자)의 프로필 등록</div>
+                        <div class="flow-subtext">[친구 등록 링크]를 통해 주선자가 직접 친구의 프로필을 올려주세요.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-line"></div>
+                    <div class="flow-icon">🤫</div>
+                    <div class="flow-content">
+                        <div class="flow-role role-guest">2. 참가자 (소개받는 분)</div>
+                        <div class="flow-text">가입 없이 피드 노출 & 대기</div>
+                        <div class="flow-subtext">참가자는 번거로운 가입 없이 익명으로 메인 피드에 노출됩니다. (사진은 철저히 비공개)</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-line"></div>
+                    <div class="flow-icon">💌</div>
+                    <div class="flow-content">
+                        <div class="flow-role role-other">3. 신청자 (타 유저)</div>
+                        <div class="flow-text">마음에 들면 매칭 신청</div>
+                        <div class="flow-subtext">피드를 보던 누군가가 매칭 신청을 하고, <b>[접수 번호]</b>를 발급받아 카톡방에 전달합니다.</div>
+                    </div>
+                </div>
+
+                <div class="flow-item">
+                    <div class="flow-icon">🎉</div>
+                    <div class="flow-content">
+                        <div class="flow-role role-host">4. 주선자</div>
+                        <span style="font-size:12px; color:#8B95A1; font-weight:bold; margin:0 4px;">&</span>
+                        <div class="flow-role role-guest">참가자</div>
+                        <div class="flow-text">의사 확인 후 최종 매칭!</div>
+                        <div class="flow-subtext">운영자가 주선자에게 먼저 연락합니다.<br>➔ 주선자가 참가자에게 의향을 묻고, 수락 시 연결 및 리워드가 지급됩니다.</div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--border); font-size: 13px; color: var(--text-sub); line-height: 1.5;">
+                <b style="color: var(--accent);">※ 비용 공지:</b> 양측 수락 시 3만 원의 매칭비가 발생하며, 무분별한 찔러보기를 방지하기 위한 최소한의 장치입니다.
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title"><span>2</span> 운영 및 공유 링크</div>
+            <div class="section-title">🔗 운영 및 공유 링크</div>
             
             <div class="link-box">
                 <span class="link-title">🔗 [주선자 전용] 친구 등록 링크</span>
@@ -156,7 +209,6 @@
                     url: url
                 }).catch(console.error);
             } else {
-                // PC 등 공유하기 미지원 환경일 경우 대체 동작
                 copyText(id);
                 alert("현재 브라우저에서는 공유하기 기능을 지원하지 않아 링크가 복사되었습니다.");
             }
