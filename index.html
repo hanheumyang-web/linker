@@ -22,7 +22,6 @@
         .nickname { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
         .referrer { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
         
-        /* 슬라이드 갤러리용 CSS 추가 */
         .photo-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin-bottom: 16px; padding-bottom: 8px; }
         .photo-slider::-webkit-scrollbar { height: 6px; }
         .photo-slider::-webkit-scrollbar-thumb { background: #E5E5EA; border-radius: 3px; }
@@ -117,16 +116,37 @@
                         '<div class="info-row"><span class="info-label">목적</span> ' + profile.goal + '</div>' +
                         '<div class="info-row"><span class="info-label">위치</span> ' + profile.location + '</div>' +
                         '<div class="tags">' + tagsHtml + '</div>' +
-                        '<button class="btn" onclick="requestMatch()">매칭 신청하기 (30,000원)</button>' +
+                        '<button class="btn" onclick="requestMatch(\'' + profile.nickname + '\')">매칭 신청하기 (30,000원)</button>' +
                     '</div>';
                 feed.innerHTML += cardHtml;
             });
         }
 
-        window.requestMatch = function() {
-            if(confirm("매칭을 신청하시겠습니까?\n\n1. 양측 3만 원 입금 시 매칭 성사\n2. 거절 시 전액 환불\n\n확인을 누르시면 매니저 카카오톡으로 연결됩니다.")) {
-                window.location.href = "https://open.kakao.com/o/suwVPTmi";
+        // 🚀 매칭 신청 누를 때 신청자의 '주선자 이름'을 묻고 문구를 생성하는 기능
+        window.requestMatch = function(targetNickname) {
+            // 1. 신청자의 주선자 물어보기
+            var reqReferrer = prompt("매칭 신청을 위해 본인을 추천해준 주선자(지인)의 이름을 입력해주세요.\\n(운영자 확인용)");
+            
+            // 입력 안 하고 취소 누르면 컷
+            if (!reqReferrer || reqReferrer.trim() === "") {
+                alert("주선자 이름을 입력해야 매칭 신청이 가능합니다.");
+                return;
             }
+
+            // 2. 카톡방에 보낼 문구 조립
+            var msg = "안녕하세요! [" + reqReferrer.trim() + "] 님 지인입니다.\\n@" + targetNickname + " 님 매칭 신청합니다!";
+
+            // 3. 문구 클립보드에 자동 복사
+            var tempInput = document.createElement("textarea");
+            tempInput.value = msg;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            // 4. 카톡방으로 이동
+            alert("✅ 매칭 신청 문구가 복사되었습니다!\\n\\n카톡방에 입장 후 '붙여넣기'만 해주세요.");
+            window.location.href = "https://open.kakao.com/o/suwVPTmi";
         };
 
         window.onload = loadProfiles;
