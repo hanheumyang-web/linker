@@ -7,18 +7,18 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <style>
         :root { 
-            --bg-color: #F2F4F6; /* 토스 느낌의 부드러운 배경색 */
+            --bg-color: #F2F4F6; 
             --card-bg: #FFFFFF; 
-            --text-main: #191F28; /* 토스 진한 텍스트 */
-            --text-sub: #4E5968; /* 토스 서브 텍스트 */
+            --text-main: #191F28; 
+            --text-sub: #4E5968; 
             --text-light: #8B95A1;
-            --accent: #3182F6; /* 토스 블루 */
+            --accent: #3182F6; 
             --border: #E5E5EA; 
         }
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.6; letter-spacing: -0.3px; }
         .container { max-width: 400px; margin: 0 auto; padding-bottom: 40px; }
         
-        /* 🚀 토스 감성 소개 섹션 시작 */
+        /* 토스 감성 소개 섹션 */
         .toss-hero { padding: 20px 0 30px; }
         .toss-badge { display: inline-block; background: #E8F3FF; color: var(--accent); font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 8px; margin-bottom: 16px; }
         .toss-title { font-size: 28px; font-weight: 800; line-height: 1.35; letter-spacing: -0.5px; margin: 0 0 12px; color: var(--text-main); word-break: keep-all; }
@@ -30,7 +30,6 @@
         .feature-text { display: flex; flex-direction: column; }
         .feature-text strong { font-size: 16px; font-weight: 700; color: #333D4B; margin-bottom: 4px; }
         .feature-text span { font-size: 13px; color: var(--text-light); line-height: 1.4; }
-        /* 🚀 토스 감성 소개 섹션 끝 */
 
         .section { background: var(--card-bg); border-radius: 16px; padding: 24px 20px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; color: var(--text-main); }
@@ -41,8 +40,12 @@
         
         .link-box { background: var(--bg-color); padding: 16px; border-radius: 12px; margin-top: 12px; word-break: break-all; }
         .link-title { font-weight: 700; font-size: 14px; color: var(--accent); margin-bottom: 6px; display: block; }
-        .link-url { font-size: 13px; color: var(--text-sub); display: block; margin-bottom: 10px; }
-        .copy-btn { background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-sub); cursor: pointer; display: inline-block; }
+        .link-url { font-size: 13px; color: var(--text-sub); display: block; margin-bottom: 12px; }
+        
+        /* 버튼 그룹 (복사, 공유, 바로가기 3등분) */
+        .btn-group { display: flex; gap: 6px; }
+        .sub-btn { flex: 1; background: white; border: 1px solid var(--border); padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-sub); cursor: pointer; text-align: center; }
+        .go-btn { flex: 1; background: var(--accent); border: 1px solid var(--accent); padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: 600; color: white; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; }
         
         .warning { background: #FFF4F4; border: none; }
         .warning-title { color: #E32636; font-weight: 700; font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; }
@@ -102,13 +105,21 @@
             <div class="link-box">
                 <span class="link-title">🔗 [주선자 전용] 친구 등록 링크</span>
                 <span class="link-url" id="url-upload">https://hanheumyang-web.github.io/linker/upload.html</span>
-                <button class="copy-btn" onclick="copyText('url-upload')">복사하기</button>
+                <div class="btn-group">
+                    <button class="sub-btn" onclick="copyText('url-upload')">복사</button>
+                    <button class="sub-btn" onclick="shareLink('url-upload', 'LINKER 친구 등록', '친구의 프로필을 등록해주세요!')">공유</button>
+                    <a href="https://hanheumyang-web.github.io/linker/upload.html" target="_blank" class="go-btn">바로가기</a>
+                </div>
             </div>
 
             <div class="link-box" style="margin-top: 16px;">
                 <span class="link-title">🔗 [친구 공유용] 매칭 피드 링크</span>
                 <span class="link-url" id="url-feed">https://hanheumyang-web.github.io/linker</span>
-                <button class="copy-btn" onclick="copyText('url-feed')">복사하기</button>
+                <div class="btn-group">
+                    <button class="sub-btn" onclick="copyText('url-feed')">복사</button>
+                    <button class="sub-btn" onclick="shareLink('url-feed', 'LINKER 매칭 피드', '프라이빗 매칭 피드를 확인해보세요!')">공유</button>
+                    <a href="https://hanheumyang-web.github.io/linker" target="_blank" class="go-btn">바로가기</a>
+                </div>
             </div>
         </div>
 
@@ -127,11 +138,28 @@
     </div>
 
     <script>
+        // 주소 복사 기능
         function copyText(id) {
             const text = document.getElementById(id).innerText;
             navigator.clipboard.writeText(text).then(() => {
                 alert("링크가 복사되었습니다!");
             });
+        }
+
+        // 모바일 네이티브 공유 기능
+        function shareLink(id, title, text) {
+            const url = document.getElementById(id).innerText;
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text,
+                    url: url
+                }).catch(console.error);
+            } else {
+                // PC 등 공유하기 미지원 환경일 경우 대체 동작
+                copyText(id);
+                alert("현재 브라우저에서는 공유하기 기능을 지원하지 않아 링크가 복사되었습니다.");
+            }
         }
     </script>
 </body>
