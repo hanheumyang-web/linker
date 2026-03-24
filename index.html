@@ -122,31 +122,30 @@
             });
         }
 
-        // 🚀 매칭 신청 누를 때 신청자의 '주선자 이름'을 묻고 문구를 생성하는 기능
-        window.requestMatch = function(targetNickname) {
-            // 1. 신청자의 주선자 물어보기
-            var reqReferrer = prompt("매칭 신청을 위해 본인을 추천해준 주선자(지인)의 이름을 입력해주세요.\\n(운영자 확인용)");
-            
-            // 입력 안 하고 취소 누르면 컷
-            if (!reqReferrer || reqReferrer.trim() === "") {
-                alert("주선자 이름을 입력해야 매칭 신청이 가능합니다.");
-                return;
+        // 🚀 카톡방 안 가고 바로 DB로 매칭 신청 꽂아버리는 함수로 교체!
+        window.requestMatch = async function(targetNickname) {
+            // 1. 신청자의 주선자 이름 받기
+            var reqName = prompt("본인을 추천해준 주선자(지인)의 '이름'을 입력해주세요.");
+            if (!reqName || reqName.trim() === "") return;
+
+            // 2. 신청자의 주선자 연락처 받기
+            var reqContact = prompt("주선자의 '연락처(또는 카톡ID)'를 입력해주세요.\n(매칭 성사 시 운영자가 이 번호로 연락드립니다.)");
+            if (!reqContact || reqContact.trim() === "") return;
+
+            if(confirm("@" + targetNickname + " 님에게 매칭을 신청하시겠습니까?")) {
+                // 3. DB match_requests 테이블에 저장
+                var { error } = await myDb.from('match_requests').insert([{
+                    target_nickname: targetNickname,
+                    requester_referrer_name: reqName.trim(),
+                    requester_referrer_contact: reqContact.trim()
+                }]);
+
+                if (error) {
+                    alert("매칭 신청 실패: " + error.message);
+                } else {
+                    alert("✅ 매칭 신청이 완료되었습니다!\n운영자가 양측 주선자 확인 후 개별 연락드립니다.");
+                }
             }
-
-            // 2. 카톡방에 보낼 문구 조립
-            var msg = "안녕하세요! [" + reqReferrer.trim() + "] 님 지인입니다.\\n@" + targetNickname + " 님 매칭 신청합니다!";
-
-            // 3. 문구 클립보드에 자동 복사
-            var tempInput = document.createElement("textarea");
-            tempInput.value = msg;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            
-            // 4. 카톡방으로 이동
-            alert("✅ 매칭 신청 문구가 복사되었습니다!\\n\\n카톡방에 입장 후 '붙여넣기'만 해주세요.");
-            window.location.href = "https://open.kakao.com/o/suwVPTmi";
         };
 
         window.onload = loadProfiles;
