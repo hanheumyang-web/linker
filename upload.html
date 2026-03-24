@@ -20,7 +20,7 @@
         input[type="text"], input[type="number"], select { flex: 1; border: none; outline: none; font-size: 16px; color: var(--text-sub); background: transparent; text-align: right; }
         input::placeholder { color: #C7C7CC; }
         select { direction: rtl; } 
-        .file-upload { color: var(--accent); font-size: 15px; }
+        .file-upload { color: var(--accent); font-size: 13px; }
         .tags-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px; }
         .tag-label { display: flex; align-items: center; font-size: 16px; color: var(--text-main); }
         .tag-label input { margin-right: 10px; width: 20px; height: 20px; accent-color: var(--accent); }
@@ -39,7 +39,7 @@
         <div class="form-group">
             <div class="input-row">
                 <span class="input-label">사진</span>
-                <input type="file" id="photos" accept="image/*" class="file-upload" style="width: 100%; text-align:right;">
+                <input type="file" id="photos" accept="image/*" multiple class="file-upload" style="width: 100%; text-align:right;">
             </div>
             <div class="input-row">
                 <span class="input-label">나이</span>
@@ -99,8 +99,7 @@
         window.forceSubmit = async function() {
             var btn = document.getElementById('submitBtn');
             var checkboxes = document.querySelectorAll('#tagGroup input:checked');
-            var fileInput = document.getElementById('photos');
-            var file = fileInput.files[0];
+            var files = document.getElementById('photos').files;
             
             if(checkboxes.length > 3) { alert("매력 포인트는 최대 3개까지만 선택 가능합니다."); return; }
             if(checkboxes.length === 0) { alert("매력 포인트를 최소 1개 이상 선택해주세요."); return; }
@@ -117,23 +116,29 @@
             btn.disabled = true;
             btn.innerText = "사진 업로드 및 데이터 전송 중...";
 
-            var imageUrl = null;
+            var imageUrls = [];
 
-            // 📸 사진 파일이 첨부되었을 경우 Storage에 업로드
-            if (file) {
-                var fileName = Date.now() + "_" + file.name;
-                var { data: upData, error: upErr } = await myDb.storage.from('photos').upload(fileName, file);
-                
-                if (upErr) {
-                    alert("사진 업로드 실패: " + upErr.message);
-                    btn.disabled = false;
-                    btn.innerText = "프로필 등록 완료";
-                    return;
+            // 선택된 모든 파일을 순회하며 업로드
+            if (files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    var fileName = Date.now() + "_" + i + "_" + file.name;
+                    var { data: upData, error: upErr } = await myDb.storage.from('photos').upload(fileName, file);
+                    
+                    if (upErr) {
+                        alert("사진 업로드 실패: " + upErr.message);
+                        btn.disabled = false;
+                        btn.innerText = "프로필 등록 완료";
+                        return;
+                    }
+                    
+                    var { data: urlData } = myDb.storage.from('photos').getPublicUrl(fileName);
+                    imageUrls.push(urlData.publicUrl);
                 }
-                
-                var { data: urlData } = myDb.storage.from('photos').getPublicUrl(fileName);
-                imageUrl = urlData.publicUrl;
             }
+            
+            // 주소 배열을 쉼표로 연결
+            var finalImageUrl = imageUrls.join(',');
             
             var tags = Array.from(checkboxes).map(function(cb) { return cb.value; }).join(', ');
             var nickname = myAdjectives[Math.floor(Math.random() * myAdjectives.length)] + "_" + myNouns[Math.floor(Math.random() * myNouns.length)];
@@ -145,7 +150,7 @@
                 location: location,
                 goal: goal,
                 tags: tags,
-                image_url: imageUrl // DB에 사진 주소 함께 저장
+                image_url: finalImageUrl // 쉼표로 연결된 주소들 저장
             };
 
             var { data, error } = await myDb.from('profiles').insert([profileData]);
