@@ -13,7 +13,6 @@
         .header { background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 16px; text-align: center; border-bottom: 0.5px solid var(--border); }
         .header-title { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
         
-        /* 통계 섹션 지운 자리에 여백 살짝 추가 */
         #feed { padding-top: 16px; }
 
         .feed-card { background: var(--card-bg); border-radius: 16px; margin: 0 16px 16px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
@@ -82,6 +81,11 @@
                 else if(profile.nickname.includes('사과')) avatarEmoji = '🍎';
                 else if(profile.nickname.includes('체리')) avatarEmoji = '🍒';
 
+                // 📸 실제 사진이 있으면 img 태그 출력, 없으면 기존 placeholder 출력
+                var photoHtml = profile.image_url 
+                    ? '<img src="' + profile.image_url + '" style="width: 100%; height: 320px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; display: block;">'
+                    : '<div class="image-placeholder">등록된 사진이 없습니다.</div>';
+
                 var cardHtml = 
                     '<div class="feed-card">' +
                         '<div class="feed-header">' +
@@ -91,7 +95,7 @@
                                 '<span class="referrer">📍 지인 추천 완료</span>' +
                             '</div>' +
                         '</div>' +
-                        '<div class="image-placeholder">등록된 사진 (MVP 테스트용)</div>' +
+                        photoHtml + 
                         '<div class="info-row"><span class="info-label">나이</span> ' + profile.age + '세</div>' +
                         '<div class="info-row"><span class="info-label">직장</span> ' + profile.job + '</div>' +
                         '<div class="info-row"><span class="info-label">목적</span> ' + profile.goal + '</div>' +
