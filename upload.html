@@ -39,7 +39,7 @@
         <div class="form-group">
             <div class="input-row">
                 <span class="input-label">사진</span>
-                <input type="file" id="photos" accept="image/*" multiple class="file-upload" style="width: 100%; text-align:right;">
+                <input type="file" id="photos" accept="image/*" class="file-upload" style="width: 100%; text-align:right;">
             </div>
             <div class="input-row">
                 <span class="input-label">나이</span>
@@ -89,7 +89,6 @@
     </div>
 
     <script>
-        // 중복 선언 에러(SyntaxError)를 강제로 피하기 위해 const 대신 var를 사용했습니다.
         var mySupabaseUrl = 'https://txabwcjvexyalallvndi.supabase.co';
         var mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
         var myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
@@ -97,10 +96,11 @@
         var myAdjectives = ["다정한", "지적인", "유머러스한", "신중한", "차분한", "활기찬"];
         var myNouns = ["쿼카", "사과", "거북이", "펭귄", "토끼", "체리"];
 
-        // 함수를 강제로 전역에 등록해서 클릭이 안 되는 현상 차단
         window.forceSubmit = async function() {
             var btn = document.getElementById('submitBtn');
             var checkboxes = document.querySelectorAll('#tagGroup input:checked');
+            var fileInput = document.getElementById('photos');
+            var file = fileInput.files[0];
             
             if(checkboxes.length > 3) { alert("매력 포인트는 최대 3개까지만 선택 가능합니다."); return; }
             if(checkboxes.length === 0) { alert("매력 포인트를 최소 1개 이상 선택해주세요."); return; }
@@ -115,7 +115,25 @@
             }
 
             btn.disabled = true;
-            btn.innerText = "데이터 전송 중...";
+            btn.innerText = "사진 업로드 및 데이터 전송 중...";
+
+            var imageUrl = null;
+
+            // 📸 사진 파일이 첨부되었을 경우 Storage에 업로드
+            if (file) {
+                var fileName = Date.now() + "_" + file.name;
+                var { data: upData, error: upErr } = await myDb.storage.from('photos').upload(fileName, file);
+                
+                if (upErr) {
+                    alert("사진 업로드 실패: " + upErr.message);
+                    btn.disabled = false;
+                    btn.innerText = "프로필 등록 완료";
+                    return;
+                }
+                
+                var { data: urlData } = myDb.storage.from('photos').getPublicUrl(fileName);
+                imageUrl = urlData.publicUrl;
+            }
             
             var tags = Array.from(checkboxes).map(function(cb) { return cb.value; }).join(', ');
             var nickname = myAdjectives[Math.floor(Math.random() * myAdjectives.length)] + "_" + myNouns[Math.floor(Math.random() * myNouns.length)];
@@ -126,7 +144,8 @@
                 job: job,
                 location: location,
                 goal: goal,
-                tags: tags
+                tags: tags,
+                image_url: imageUrl // DB에 사진 주소 함께 저장
             };
 
             var { data, error } = await myDb.from('profiles').insert([profileData]);
@@ -138,8 +157,6 @@
                 btn.innerText = "프로필 등록 완료";
             } else {
                 alert("✅ 프로필 등록 완료!\n\n부여된 익명 닉네임: @" + nickname);
-                
-                // 로컬 환경(내 컴퓨터)에서 열었을 때 보안에 막히지 않고 넘어가도록 처리
                 if (window.location.protocol === 'file:') {
                     window.location.href = 'index.html';
                 } else {
