@@ -16,8 +16,8 @@
         .form-group { background: var(--card-bg); border-radius: 10px; margin: 0 16px; overflow: hidden; }
         .input-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid var(--border); }
         .input-row:last-child { border-bottom: none; }
-        .input-label { width: 80px; font-size: 16px; font-weight: 500; }
-        input[type="text"], input[type="number"], select { flex: 1; border: none; outline: none; font-size: 16px; color: var(--text-sub); background: transparent; text-align: right; }
+        .input-label { width: 80px; font-size: 16px; font-weight: 500; flex-shrink: 0; }
+        input[type="text"], input[type="number"], select { flex: 1; border: none; outline: none; font-size: 16px; color: var(--text-main); background: transparent; text-align: right; }
         input::placeholder { color: #C7C7CC; }
         select { direction: rtl; } 
         .file-upload { color: var(--accent); font-size: 13px; }
@@ -84,6 +84,18 @@
                 <label class="tag-label"><input type="checkbox" value="#집돌이_집순이"> 안락한 집순이</label>
             </div>
         </div>
+
+        <div class="form-section-title">주선자 정보 (비공개, 운영자만 확인)</div>
+        <div class="form-group">
+            <div class="input-row">
+                <span class="input-label" style="width: 100px;">주선자 이름</span>
+                <input type="text" id="referrer_name" placeholder="본인 이름 (예: 홍길동)">
+            </div>
+            <div class="input-row">
+                <span class="input-label" style="width: 100px;">연락처/카톡ID</span>
+                <input type="text" id="referrer_contact" placeholder="매칭 시 연락받을 곳">
+            </div>
+        </div>
         
         <button id="submitBtn" class="submit-btn" onclick="window.forceSubmit()">프로필 등록 완료</button>
     </div>
@@ -108,9 +120,11 @@
             var job = document.getElementById('job').value;
             var location = document.getElementById('location').value;
             var goal = document.getElementById('goal').value;
+            var referrerName = document.getElementById('referrer_name').value;
+            var referrerContact = document.getElementById('referrer_contact').value;
             
-            if(!age || !job || !location || !goal) {
-                alert("모든 기본 정보를 빈칸 없이 입력해주세요."); return;
+            if(!age || !job || !location || !goal || !referrerName || !referrerContact) {
+                alert("모든 기본 정보와 주선자 정보를 빈칸 없이 입력해주세요."); return;
             }
 
             btn.disabled = true;
@@ -118,7 +132,6 @@
 
             var imageUrls = [];
 
-            // 선택된 모든 파일을 순회하며 업로드
             if (files.length > 0) {
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
@@ -137,9 +150,7 @@
                 }
             }
             
-            // 주소 배열을 쉼표로 연결
             var finalImageUrl = imageUrls.join(',');
-            
             var tags = Array.from(checkboxes).map(function(cb) { return cb.value; }).join(', ');
             var nickname = myAdjectives[Math.floor(Math.random() * myAdjectives.length)] + "_" + myNouns[Math.floor(Math.random() * myNouns.length)];
             
@@ -150,7 +161,9 @@
                 location: location,
                 goal: goal,
                 tags: tags,
-                image_url: finalImageUrl // 쉼표로 연결된 주소들 저장
+                image_url: finalImageUrl,
+                referrer_name: referrerName, // 주선자 이름 저장
+                referrer_contact: referrerContact // 주선자 연락처 저장
             };
 
             var { data, error } = await myDb.from('profiles').insert([profileData]);
