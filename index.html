@@ -98,10 +98,16 @@
 
                 var photoHtml = '<div class="image-placeholder">등록된 사진이 없습니다.</div>';
                 if (profile.image_url) {
-                    var urls = profile.image_url.split(',');
-                    photoHtml = '<div class="photo-slider">';
-                    urls.forEach(url => { if (url.trim() !== '') photoHtml += `<img src="${url.trim()}" class="photo-slide">`; });
-                    photoHtml += '</div>';
+                    var urls = profile.image_url.split(',').filter(function(u) {
+                        return u.trim() !== '' && u.trim().startsWith('http');
+                    });
+                    if (urls.length > 0) {
+                        photoHtml = '<div class="photo-slider">';
+                        urls.forEach(function(url) {
+                            photoHtml += '<img src="' + url.trim() + '" class="photo-slide" onerror="this.parentElement.innerHTML=\'<div class=image-placeholder>사진을 불러올 수 없습니다.</div>\'">';
+                        });
+                        photoHtml += '</div>';
+                    }
                 }
 
                 var cardHtml = `
@@ -168,28 +174,14 @@
                 btn.disabled = false;
                 btn.innerText = "접수 및 카톡 연결";
             } else {
-                // 카톡에 붙여넣을 문구 조립
-                var msg = "[" + ticketNumber + "] @" + currentTargetNickname + " 님 매칭 신청합니다!";
-                
-                // 몰래 클립보드에 복사
-                var tempInput = document.createElement("textarea");
-                tempInput.value = msg;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand("copy");
-                document.body.removeChild(tempInput);
+                alert("✅ 매칭 신청 완료!\n\n접수번호: " + ticketNumber + "\n\n운영자 확인 후 빠르게 안내드리겠습니다.\n잠시만 기다려주세요!");
 
-                alert("✅ 접수 완료! (번호: " + ticketNumber + ")\n\n매니저에게 보낼 문구가 자동 복사되었습니다.\n카톡방 입장 후 바로 '붙여넣기' 해주세요!");
-                
-                // 모달 초기화 및 카톡방 이동
                 closeModal();
                 btn.disabled = false;
                 btn.innerText = "접수 및 카톡 연결";
                 document.getElementById('reqMyName').value = "";
                 document.getElementById('reqMyContact').value = "";
                 document.getElementById('reqReferrerName').value = "";
-                
-                window.location.href = "https://open.kakao.com/o/suwVPTmi";
             }
         };
 
