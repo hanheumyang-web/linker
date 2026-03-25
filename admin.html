@@ -99,7 +99,7 @@
     </div>
 
     <script>
-        if(prompt("관리자 비밀번호를 입력하세요:") !== "1234") {
+        if(prompt("관리자 비밀번호를 입력하세요:") !== "3336") {
             alert("비밀번호가 틀렸습니다.");
             document.body.innerHTML = "접근 거부됨";
         } else {
@@ -142,7 +142,7 @@
                 if (p.tags) {
                     tagsHtml = '<div class="pd-tags">' + p.tags.split(',').map(function(t) { return '<span class="pd-tag">' + t.trim() + '</span>'; }).join('') + '</div>';
                 }
-                var card = '<div class="profile-card" onclick="this.classList.toggle(\'open\')">' +
+                var card = '<div class="profile-card" onclick="toggleCard(event, this)">' +
                     thumbHtml +
                     '<div class="profile-info">' +
                         '<div class="profile-name">@' + p.nickname + '</div>' +
@@ -179,6 +179,12 @@
                 list.innerHTML += card;
             });
         }
+
+        window.toggleCard = function(e, el) {
+            var tag = e.target.tagName.toLowerCase();
+            if (tag === 'select' || tag === 'input' || tag === 'option' || tag === 'button' || tag === 'label') return;
+            el.classList.toggle('open');
+        };
 
         window.saveProfile = async function(profileId) {
             var gender = document.getElementById('gender_' + profileId).value;
