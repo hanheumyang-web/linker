@@ -92,30 +92,16 @@
         .btn-share { flex: 1; background: white; border: 1px solid var(--border); padding: 10px 0; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--sub); cursor: pointer; font-family: inherit; }
         .btn-go { flex: 1; background: var(--accent); border: none; padding: 10px 0; border-radius: 10px; font-size: 13px; font-weight: 600; color: white; cursor: pointer; text-decoration: none; text-align: center; display: block; font-family: inherit; }
 
-        /* ===== 페인포인트 비교 카드 ===== */
-        .pain-card { background: var(--card); border-radius: 20px; padding: 28px 22px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
-        .pain-card .pain-header { margin-bottom: 20px; }
-        .pain-card .pain-badge { display: inline-block; background: #FFF0F6; color: #E64980; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 8px; margin-bottom: 10px; }
-        .pain-card h3 { font-size: 20px; font-weight: 800; line-height: 1.35; letter-spacing: -0.5px; word-break: keep-all; }
-        .pain-card h3 span { color: #E64980; }
-        .pain-card .pain-sub { font-size: 13px; color: var(--sub); margin-top: 8px; line-height: 1.5; }
-        .app-compare { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .app-row { display: flex; align-items: center; background: var(--bg); border-radius: 12px; padding: 14px 16px; gap: 12px; }
-        .app-icon { font-size: 24px; flex-shrink: 0; }
-        .app-info { flex: 1; }
-        .app-name { font-size: 14px; font-weight: 700; color: var(--main); }
-        .app-detail { font-size: 12px; color: var(--light); margin-top: 2px; }
-        .app-cost { font-size: 15px; font-weight: 800; color: #E64980; text-align: right; flex-shrink: 0; }
-        .pain-divider { height: 1px; background: var(--border); margin: 20px 0; }
-        .pain-stat { display: flex; gap: 12px; margin-bottom: 16px; }
-        .pain-stat-item { flex: 1; background: #FFF0F6; border-radius: 14px; padding: 16px 12px; text-align: center; }
-        .pain-stat-num { font-size: 22px; font-weight: 800; color: #E64980; }
-        .pain-stat-label { font-size: 11px; color: var(--sub); margin-top: 4px; word-break: keep-all; }
-        .pain-vs { background: linear-gradient(135deg, #F8F9FA, #E8F3FF); border-radius: 14px; padding: 18px; text-align: center; }
-        .pain-vs .vs-label { font-size: 12px; color: var(--light); font-weight: 600; }
-        .pain-vs .vs-name { font-size: 16px; font-weight: 800; color: var(--accent); margin: 4px 0; }
-        .pain-vs .vs-price { font-size: 28px; font-weight: 800; color: var(--accent); }
-        .pain-vs .vs-desc { font-size: 12px; color: var(--sub); margin-top: 4px; }
+        /* ===== 페인포인트 미니 카드 ===== */
+        .pain-mini { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+        .pain-mini-badge { display: inline-block; background: #FFF0F6; color: #E64980; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 14px; }
+        .pain-mini-row { display: flex; gap: 0; align-items: center; }
+        .pain-mini-item { flex: 1; text-align: center; }
+        .pain-mini-num { font-size: 20px; font-weight: 800; color: #E64980; }
+        .pain-mini-label { font-size: 11px; color: var(--sub); margin-top: 4px; word-break: keep-all; line-height: 1.4; }
+        .pain-mini-divider { width: 1px; height: 40px; background: var(--border); flex-shrink: 0; }
+        .pain-mini-footer { margin-top: 14px; text-align: center; font-size: 13px; color: var(--sub); background: var(--accent-light); padding: 10px 14px; border-radius: 10px; }
+        .pain-mini-footer b { color: var(--accent); font-weight: 800; }
 
         /* ===== 주의사항 ===== */
         .warning-card { background: #FFF5F5; border-radius: 16px; padding: 24px 20px; margin-bottom: 24px; }
@@ -134,11 +120,12 @@
         .faq-a { padding: 0 20px 18px; font-size: 14px; color: var(--sub); line-height: 1.6; display: none; word-break: keep-all; }
         .faq-item.open .faq-a { display: block; }
 
-        /* ===== CTA 하단 버튼 ===== */
-        .cta-bottom { display: flex; gap: 10px; margin-top: 32px; }
-        .cta-btn { flex: 1; padding: 16px 0; border-radius: 14px; font-size: 15px; font-weight: 700; text-align: center; text-decoration: none; border: none; cursor: pointer; font-family: inherit; }
+        /* ===== 고정 플로팅 바 ===== */
+        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(0,0,0,0.08); z-index: 100; display: flex; gap: 10px; justify-content: center; }
+        .floating-bar .cta-btn { flex: 1; max-width: 200px; padding: 14px 0; border-radius: 12px; font-size: 14px; font-weight: 700; text-align: center; text-decoration: none; border: none; cursor: pointer; font-family: inherit; }
         .cta-primary { background: var(--accent); color: white; }
-        .cta-secondary { background: white; color: var(--main); border: 1px solid var(--border); }
+        .cta-secondary { background: var(--bg); color: var(--main); border: 1px solid var(--border); }
+        .container { padding-bottom: 100px; }
 
         .footer { text-align: center; font-size: 12px; color: var(--light); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
 
@@ -179,6 +166,25 @@
                 <div class="feat-emoji">💸</div>
                 <h3>주선자 리워드</h3>
                 <p>추천한 친구의 매칭이 성사되면 주선자님께 리워드가 지급됩니다.</p>
+            </div>
+        </div>
+
+        <!-- 페인포인트 미니 카드 -->
+        <div class="pain-mini">
+            <div class="pain-mini-badge">일반 데이팅앱 평균</div>
+            <div class="pain-mini-row">
+                <div class="pain-mini-item">
+                    <div class="pain-mini-num">15~50만원</div>
+                    <div class="pain-mini-label">실제 만남 1회까지 평균 지출</div>
+                </div>
+                <div class="pain-mini-divider"></div>
+                <div class="pain-mini-item">
+                    <div class="pain-mini-num">3% 미만</div>
+                    <div class="pain-mini-label">매칭→실제 만남 전환율</div>
+                </div>
+            </div>
+            <div class="pain-mini-footer">
+                LINKER는 <b>3만원</b>, 성사 시에만 · 불발 시 무료
             </div>
         </div>
 
@@ -304,78 +310,6 @@
         </div>
 
         <!-- 매칭비 카드 -->
-        <!-- 페인포인트 비교 카드 -->
-        <div class="pain-card">
-            <div class="pain-header">
-                <div class="pain-badge">WHY LINKER?</div>
-                <h3>데이팅앱에 쓰는 돈,<br><span>실제 만남</span>으로 이어지나요?</h3>
-                <p class="pain-sub">한국 데이팅앱 이용자의 평균 성별 비율은 남성 85% : 여성 15%.<br>실제 만남까지 이어지는 확률은 3% 미만입니다.</p>
-            </div>
-
-            <div class="app-compare">
-                <div class="app-row">
-                    <div class="app-icon">🔥</div>
-                    <div class="app-info">
-                        <div class="app-name">Tinder Gold</div>
-                        <div class="app-detail">월 구독 + 부스트 별도 과금</div>
-                    </div>
-                    <div class="app-cost">~3.2만/월</div>
-                </div>
-                <div class="app-row">
-                    <div class="app-icon">💜</div>
-                    <div class="app-info">
-                        <div class="app-name">위피 (Wippy)</div>
-                        <div class="app-detail">젤리 소모형 · 채팅마다 과금</div>
-                    </div>
-                    <div class="app-cost">~5-10만/월</div>
-                </div>
-                <div class="app-row">
-                    <div class="app-icon">💎</div>
-                    <div class="app-info">
-                        <div class="app-name">글램 (Glam)</div>
-                        <div class="app-detail">젬 소모형 · 카톡 교환에만 3-5만</div>
-                    </div>
-                    <div class="app-cost">~3-5만/월</div>
-                </div>
-                <div class="app-row">
-                    <div class="app-icon">🐝</div>
-                    <div class="app-info">
-                        <div class="app-name">Bumble Premium</div>
-                        <div class="app-detail">월 구독 · 슈퍼스와이프 별도</div>
-                    </div>
-                    <div class="app-cost">~3-4만/월</div>
-                </div>
-                <div class="app-row">
-                    <div class="app-icon">☕</div>
-                    <div class="app-info">
-                        <div class="app-name">커피밋베이글</div>
-                        <div class="app-detail">월 구독형 · 하루 1명 추천</div>
-                    </div>
-                    <div class="app-cost">~3.5-5만/월</div>
-                </div>
-            </div>
-
-            <div class="pain-stat">
-                <div class="pain-stat-item">
-                    <div class="pain-stat-num">15~50만</div>
-                    <div class="pain-stat-label">실제 만남 1회까지<br>평균 지출액</div>
-                </div>
-                <div class="pain-stat-item">
-                    <div class="pain-stat-num">3%↓</div>
-                    <div class="pain-stat-label">매칭 → 실제 만남<br>전환율</div>
-                </div>
-            </div>
-
-            <div class="pain-divider"></div>
-
-            <div class="pain-vs">
-                <div class="vs-label">반면 LINKER는</div>
-                <div class="vs-name">지인 검증 · 운영자 직접 매칭</div>
-                <div class="vs-price">30,000원</div>
-                <div class="vs-desc">매칭 성사 시에만 · 불발 시 무료</div>
-            </div>
-        </div>
-
         <div class="pricing-card">
             <div class="price-badge">MATCHING FEE</div>
             <h3>매칭비 안내</h3>
@@ -441,16 +375,16 @@
             </ul>
         </div>
 
-        <!-- CTA 버튼 -->
-        <div class="cta-bottom">
-            <a href="https://hanheumyang-web.github.io/linker/" class="cta-btn cta-primary">피드 보러가기</a>
-            <a href="https://hanheumyang-web.github.io/linker/upload.html" class="cta-btn cta-secondary">친구 등록하기</a>
-        </div>
-
         <div class="footer">
             © 2026 LINKER Private Match.<br>
             지인 기반 프라이빗 매칭 서비스
         </div>
+    </div>
+
+    <!-- 고정 플로팅 바 -->
+    <div class="floating-bar">
+        <a href="https://hanheumyang-web.github.io/linker/" class="cta-btn cta-primary">피드 보러가기</a>
+        <a href="https://hanheumyang-web.github.io/linker/upload.html" class="cta-btn cta-secondary">친구 등록하기</a>
     </div>
 
     <!-- Toast 알림 -->
