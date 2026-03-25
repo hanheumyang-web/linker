@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINKER - 매칭 제안</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --bg-color: #F2F2F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-sub: #86868B; --accent: #3182F6; --border: #E5E5EA; }
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; justify-content: center; -webkit-font-smoothing: antialiased; }
+        .app-container { width: 100%; max-width: 400px; min-height: 100vh; padding: 0 0 40px; }
+        .header { background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 16px; text-align: center; border-bottom: 0.5px solid var(--border); }
+        .header-title { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
+        .hero { text-align: center; padding: 32px 24px 24px; }
+        .hero-emoji { font-size: 48px; margin-bottom: 12px; }
+        .hero-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 8px; }
+        .hero-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
+        .card { background: var(--card-bg); border-radius: 16px; margin: 0 16px 16px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .card-title { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 16px; }
+        .info-row { font-size: 15px; margin-bottom: 10px; line-height: 1.4; display: flex; }
+        .info-label { color: var(--text-sub); width: 80px; font-weight: 500; flex-shrink: 0; }
+        .info-value { font-weight: 600; }
+        .photo-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin-bottom: 16px; padding-bottom: 8px; }
+        .photo-slider::-webkit-scrollbar { height: 6px; }
+        .photo-slider::-webkit-scrollbar-thumb { background: #E5E5EA; border-radius: 3px; }
+        .photo-slide { flex: 0 0 100%; height: 320px; object-fit: cover; border-radius: 12px; scroll-snap-align: center; }
+        .tags { margin-top: 12px; }
+        .tag { display: inline-block; background: var(--bg-color); color: var(--text-main); padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; margin: 0 4px 4px 0; }
+        .btn-group { display: flex; gap: 10px; margin: 24px 16px 0; }
+        .btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; text-align: center; }
+        .btn-accept { background: var(--accent); color: white; }
+        .btn-accept:active { opacity: 0.8; }
+        .btn-decline { background: #E5E5EA; color: var(--text-sub); }
+        .btn-decline:active { opacity: 0.8; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .notice { margin: 16px 16px 0; padding: 14px 16px; background: #FFF4E6; border-radius: 12px; font-size: 13px; color: #F08C00; line-height: 1.5; font-weight: 500; }
+        .loading { text-align: center; padding: 60px 20px; color: var(--text-sub); font-size: 15px; }
+        .result-card { text-align: center; padding: 40px 24px; }
+        .result-emoji { font-size: 48px; margin-bottom: 12px; }
+        .result-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .result-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="header-title">LINKER</div>
+        </div>
+        <div id="content"><div class="loading">정보를 불러오는 중...</div></div>
+    </div>
+
+    <script>
+        var mySupabaseUrl = 'https://txabwcjvexyalallvndi.supabase.co';
+        var mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
+        var myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var token = urlParams.get('token');
+        var content = document.getElementById('content');
+
+        async function loadOffer() {
+            if (!token) {
+                content.innerHTML = '<div class="loading">유효하지 않은 링크입니다.</div>';
+                return;
+            }
+
+            var { data: requests, error } = await myDb.from('match_requests').select('*').eq('offer_token', token);
+
+            if (error || !requests || requests.length === 0) {
+                content.innerHTML = '<div class="loading">만료되었거나 존재하지 않는 링크입니다.</div>';
+                return;
+            }
+
+            var req = requests[0];
+
+            // 이미 수락/거절된 경우
+            if (req.status === 'accepted') {
+                content.innerHTML = '<div class="card"><div class="result-card">' +
+                    '<div class="result-emoji">🎉</div>' +
+                    '<div class="result-title">이미 수락하셨습니다</div>' +
+                    '<div class="result-desc">운영자가 확인 후 다음 단계를 안내드릴게요.</div>' +
+                    '</div></div>';
+                return;
+            }
+            if (req.status === 'rejected') {
+                content.innerHTML = '<div class="card"><div class="result-card">' +
+                    '<div class="result-emoji">😔</div>' +
+                    '<div class="result-title">거절된 매칭입니다</div>' +
+                    '</div></div>';
+                return;
+            }
+
+            // 타겟 프로필(신청 받은 사람) 가져오기 — 본인 확인용
+            var { data: profiles } = await myDb.from('profiles').select('*').eq('nickname', req.target_nickname);
+            var targetProfile = (profiles && profiles.length > 0) ? profiles[0] : null;
+
+            // 신청자 정보 카드 렌더링
+            var html = '<div class="hero">' +
+                '<div class="hero-emoji">💌</div>' +
+                '<div class="hero-title">매칭 신청이 도착했어요</div>' +
+                '<div class="hero-desc">아래 신청자의 정보를 확인하고<br>수락 여부를 결정해주세요.</div>' +
+                '</div>';
+
+            // 타겟 본인 프로필 사진 (신청 받은 쪽이 누구인지 확인용)
+            if (targetProfile) {
+                html += '<div class="card">' +
+                    '<div class="card-title">내 프로필 (' + req.ticket_number + ')</div>' +
+                    '<div class="info-row"><span class="info-label">닉네임</span> <span class="info-value">@' + targetProfile.nickname + '</span></div>' +
+                    '<div class="info-row"><span class="info-label">나이</span> <span class="info-value">' + targetProfile.age + '세</span></div>' +
+                    '</div>';
+            }
+
+            // 신청자 정보
+            html += '<div class="card">' +
+                '<div class="card-title">신청자 정보</div>' +
+                '<div class="info-row"><span class="info-label">이름</span> <span class="info-value">' + (req.requester_my_name || '비공개') + '</span></div>' +
+                '<div class="info-row"><span class="info-label">주선자</span> <span class="info-value">' + (req.requester_referrer_name || '비공개') + '</span></div>' +
+                '</div>';
+
+            html += '<div class="notice">수락 시 운영자가 양측에 결제 안내를 드리며, 결제 완료 후 연락처가 교환됩니다. 개인정보는 매칭 목적 외에 절대 사용되지 않습니다.</div>';
+
+            html += '<div class="btn-group">' +
+                '<button class="btn btn-decline" id="btnDecline" onclick="respondOffer(\'' + req.id + '\', \'rejected\')">정중히 거절</button>' +
+                '<button class="btn btn-accept" id="btnAccept" onclick="respondOffer(\'' + req.id + '\', \'accepted\')">수락할게요</button>' +
+                '</div>';
+
+            content.innerHTML = html;
+        }
+
+        window.respondOffer = async function(requestId, newStatus) {
+            var label = (newStatus === 'accepted') ? '수락' : '거절';
+            if (!confirm('정말 ' + label + '하시겠습니까?')) return;
+
+            document.getElementById('btnAccept').disabled = true;
+            document.getElementById('btnDecline').disabled = true;
+
+            var { error } = await myDb.from('match_requests').update({
+                status: newStatus
+            }).eq('id', requestId);
+
+            if (error) {
+                alert("처리 중 오류가 발생했습니다: " + error.message);
+                document.getElementById('btnAccept').disabled = false;
+                document.getElementById('btnDecline').disabled = false;
+                return;
+            }
+
+            if (newStatus === 'accepted') {
+                content.innerHTML = '<div class="card"><div class="result-card">' +
+                    '<div class="result-emoji">🎉</div>' +
+                    '<div class="result-title">매칭을 수락하셨습니다!</div>' +
+                    '<div class="result-desc">운영자가 확인 후 결제 안내를 드릴게요.<br>조금만 기다려주세요!</div>' +
+                    '</div></div>';
+            } else {
+                content.innerHTML = '<div class="card"><div class="result-card">' +
+                    '<div class="result-emoji">😌</div>' +
+                    '<div class="result-title">거절이 완료되었습니다</div>' +
+                    '<div class="result-desc">다음에 더 좋은 인연이 있을 거예요.</div>' +
+                    '</div></div>';
+            }
+        };
+
+        window.onload = loadOffer;
+    </script>
+</body>
+</html>
