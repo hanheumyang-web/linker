@@ -42,6 +42,9 @@
         .tag { display: inline-block; background: var(--bg-color); color: var(--text-main); padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; margin: 0 4px 4px 0; }
         .btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btn:active { opacity: 0.8; }
+        .gender-filter { display: flex; gap: 8px; padding: 0 16px; margin-bottom: 16px; }
+        .gender-btn { flex: 1; padding: 10px 0; border-radius: 10px; border: 1px solid var(--border); background: white; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; text-align: center; font-family: inherit; }
+        .gender-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
         .loading { text-align: center; padding: 40px; color: var(--text-sub); font-size: 15px; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
@@ -52,15 +55,32 @@
         .modal-btn-group { display: flex; gap: 8px; margin-top: 8px; }
         .modal-btn-cancel { flex: 1; padding: 14px; border-radius: 10px; border: none; background: #E5E5EA; color: var(--text-main); font-weight: 600; font-size: 15px; cursor: pointer; }
         .modal-btn-submit { flex: 2; padding: 14px; border-radius: 10px; border: none; background: var(--accent); color: white; font-weight: 600; font-size: 15px; cursor: pointer; }
+        .header { display: flex; align-items: center; justify-content: space-between; }
+        .shuffle-btn { background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; color: var(--text-sub); font-weight: 600; }
+        .shuffle-btn:active { opacity: 0.7; }
+        .pagination { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 20px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(0,0,0,0.08); z-index: 100; }
+        .page-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border); background: white; font-size: 15px; font-weight: 700; cursor: pointer; color: var(--text-sub); font-family: inherit; display: flex; align-items: center; justify-content: center; }
+        .page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .page-btn:disabled { opacity: 0.3; cursor: default; }
+        .page-arrow { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border); background: white; font-size: 18px; font-weight: 600; cursor: pointer; color: var(--text-main); font-family: inherit; display: flex; align-items: center; justify-content: center; }
+        .page-arrow:disabled { opacity: 0.3; cursor: default; }
+        .app-container { padding-bottom: 80px; }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="header">
             <div class="header-title">LINKER</div>
+            <button class="shuffle-btn" onclick="shuffleAndRender()">🔀 섞기</button>
+        </div>
+        <div class="gender-filter">
+            <button class="gender-btn active" onclick="filterGender('all', this)">전체</button>
+            <button class="gender-btn" onclick="filterGender('남성', this)">남성</button>
+            <button class="gender-btn" onclick="filterGender('여성', this)">여성</button>
         </div>
         <div id="feed"><div class="loading">데이터를 불러오는 중입니다...</div></div>
     </div>
+    <div class="pagination" id="pagination"></div>
 
     <div class="modal-overlay" id="applyModal">
         <div class="modal-content">
@@ -92,18 +112,50 @@
         }
 
         var currentTargetNickname = "";
+        var allProfiles = [];
+        var currentPage = 1;
+        var perPage = 5;
+        var currentGender = 'all';
+
+        function shuffle(arr) {
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            }
+            return arr;
+        }
+
+        function getFiltered() {
+            if (currentGender === 'all') return allProfiles;
+            return allProfiles.filter(function(p) { return p.gender === currentGender; });
+        }
 
         async function loadProfiles() {
             var feed = document.getElementById('feed');
-            var { data: profiles, error } = await myDb.from('profiles').select('*').order('created_at', { ascending: false });
+            var { data: profiles, error } = await myDb.from('profiles').select('*');
 
             if (error) { feed.innerHTML = '<div class="loading">에러: ' + error.message + '</div>'; return; }
             if (!profiles || profiles.length === 0) { feed.innerHTML = '<div class="loading">아직 등록된 프로필이 없습니다.</div>'; return; }
 
-            feed.innerHTML = ''; 
+            allProfiles = shuffle(profiles);
+            currentPage = 1;
+            renderPage();
+        }
 
-            profiles.forEach(function(profile) {
-                var tagsHtml = (profile.tags || "").split(', ').map(tag => `<span class="tag">${tag}</span>`).join('');
+        function renderPage() {
+            var feed = document.getElementById('feed');
+            var filtered = getFiltered();
+            var totalPages = Math.ceil(filtered.length / perPage);
+            if (currentPage > totalPages) currentPage = 1;
+            var start = (currentPage - 1) * perPage;
+            var pageProfiles = filtered.slice(start, start + perPage);
+
+            if (filtered.length === 0) { feed.innerHTML = '<div class="loading">해당 성별의 프로필이 없습니다.</div>'; document.getElementById('pagination').innerHTML = ''; return; }
+
+            feed.innerHTML = '';
+
+            pageProfiles.forEach(function(profile) {
+                var tagsHtml = (profile.tags || "").split(', ').map(function(tag) { return '<span class="tag">' + tag + '</span>'; }).join('');
                 var avatarEmoji = '👤';
                 if(profile.nickname.includes('토끼')) avatarEmoji = '🐰';
                 else if(profile.nickname.includes('쿼카')) avatarEmoji = '🐻';
@@ -137,23 +189,22 @@
                     }
                 }
 
-                var cardHtml = `
-                    <div class="feed-card">
-                        <div class="feed-header">
-                            <div class="avatar">${avatarEmoji}</div>
-                            <div class="user-info">
-                                <span class="nickname">@${profile.nickname}</span>
-                                <span class="referrer">📍 지인 추천 완료</span>
-                            </div>
-                        </div>
-                        ${photoHtml}
-                        <div class="info-row"><span class="info-label">나이</span> ${profile.age}세</div>
-                        <div class="info-row"><span class="info-label">직장</span> ${profile.job}</div>
-                        <div class="info-row"><span class="info-label">목적</span> ${profile.goal}</div>
-                        <div class="info-row"><span class="info-label">위치</span> ${profile.location}</div>
-                        <div class="tags">${tagsHtml}</div>
-                        <button class="btn" onclick="openModal('${profile.nickname}')">매칭 신청하기 (30,000원)</button>
-                    </div>`;
+                var cardHtml = '<div class="feed-card">' +
+                    '<div class="feed-header">' +
+                        '<div class="avatar">' + avatarEmoji + '</div>' +
+                        '<div class="user-info">' +
+                            '<span class="nickname">@' + profile.nickname + '</span>' +
+                            '<span class="referrer">📍 지인 추천 완료</span>' +
+                        '</div>' +
+                    '</div>' +
+                    photoHtml +
+                    '<div class="info-row"><span class="info-label">나이</span> ' + profile.age + '세</div>' +
+                    '<div class="info-row"><span class="info-label">직장</span> ' + profile.job + '</div>' +
+                    '<div class="info-row"><span class="info-label">목적</span> ' + profile.goal + '</div>' +
+                    '<div class="info-row"><span class="info-label">위치</span> ' + profile.location + '</div>' +
+                    '<div class="tags">' + tagsHtml + '</div>' +
+                    '<button class="btn" onclick="openModal(\'' + profile.nickname + '\')">매칭 신청하기 (30,000원)</button>' +
+                    '</div>';
                 feed.innerHTML += cardHtml;
             });
 
@@ -171,7 +222,41 @@
                     });
                 }
             });
+
+            // 페이지네이션 렌더
+            var pag = document.getElementById('pagination');
+            if (totalPages <= 1) { pag.innerHTML = ''; pag.style.display = 'none'; return; }
+            pag.style.display = 'flex';
+            var pagHtml = '<button class="page-arrow" onclick="goPage(' + (currentPage - 1) + ')"' + (currentPage === 1 ? ' disabled' : '') + '>‹</button>';
+            for (var i = 1; i <= totalPages; i++) {
+                pagHtml += '<button class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+            }
+            pagHtml += '<button class="page-arrow" onclick="goPage(' + (currentPage + 1) + ')"' + (currentPage === totalPages ? ' disabled' : '') + '>›</button>';
+            pag.innerHTML = pagHtml;
         }
+
+        window.goPage = function(page) {
+            var totalPages = Math.ceil(getFiltered().length / perPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.shuffleAndRender = function() {
+            allProfiles = shuffle(allProfiles);
+            currentPage = 1;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.filterGender = function(gender, btnEl) {
+            document.querySelectorAll('.gender-btn').forEach(function(b) { b.classList.remove('active'); });
+            btnEl.classList.add('active');
+            currentGender = gender;
+            currentPage = 1;
+            renderPage();
+        };
 
         window.slidePhoto = function(btn, dir) {
             var wrapper = btn.closest('.photo-wrapper');
@@ -234,6 +319,33 @@
                 document.getElementById('reqReferrerName').value = "";
             }
         };
+
+        // 스와이프 제스처 (모바일 + PC 드래그)
+        (function() {
+            var feed = document.getElementById('feed');
+            var startX = 0, startY = 0, isDragging = false;
+            feed.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, { passive: true });
+            feed.addEventListener('touchend', function(e) {
+                var dx = e.changedTouches[0].clientX - startX;
+                var dy = e.changedTouches[0].clientY - startY;
+                if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+                    var total = Math.ceil(getFiltered().length / perPage);
+                    if (dx < 0 && currentPage < total) goPage(currentPage + 1);
+                    else if (dx > 0 && currentPage > 1) goPage(currentPage - 1);
+                }
+            });
+            feed.addEventListener('mousedown', function(e) { startX = e.clientX; isDragging = true; });
+            feed.addEventListener('mouseup', function(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                var dx = e.clientX - startX;
+                if (Math.abs(dx) > 80) {
+                    var total = Math.ceil(getFiltered().length / perPage);
+                    if (dx < 0 && currentPage < total) goPage(currentPage + 1);
+                    else if (dx > 0 && currentPage > 1) goPage(currentPage - 1);
+                }
+            });
+        })();
 
         window.onload = loadProfiles;
     </script>
