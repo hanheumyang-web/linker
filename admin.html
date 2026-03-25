@@ -10,8 +10,17 @@
         body { font-family: 'Pretendard', sans-serif; background: #F2F4F6; margin: 0; padding: 20px; color: #191F28; }
         .container { max-width: 800px; margin: 0 auto; }
         h1 { margin-bottom: 20px; font-size: 24px; display: flex; align-items: center; justify-content: space-between; }
-        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-left: 5px solid #3182F6; position: relative; }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; position: relative; }
+        .card[data-status="pending"] { border-left: 5px solid #3182F6; }
+        .card[data-status="approved"] { border-left: 5px solid #F08C00; }
+        .card[data-status="accepted"] { border-left: 5px solid #20C997; }
+        .card[data-status="rejected"] { border-left: 5px solid #ADB5BD; opacity: 0.6; }
         .ticket-badge { position: absolute; top: -12px; left: 16px; background: #191F28; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .status-badge { position: absolute; top: -12px; right: 16px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #E8F3FF; color: #3182F6; }
+        .status-approved { background: #FFF4E6; color: #F08C00; }
+        .status-accepted { background: #E6FCF5; color: #0CA678; }
+        .status-rejected { background: #F1F3F5; color: #868E96; }
         .info-box { flex: 1; min-width: 250px; margin-top: 10px; margin-bottom: 10px; }
         .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; margin-bottom: 12px; }
         .badge-requester { background: #E8F3FF; color: #3182F6; }
@@ -20,11 +29,32 @@
         .row strong { display: inline-block; width: 70px; color: #8B95A1; font-weight: 500; }
         .highlight { font-weight: 700; color: #191F28; }
         .vs { font-size: 20px; font-weight: bold; color: #C6C6C8; margin: 0 20px; }
+        .action-bar { width: 100%; display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E5EA; }
+        .action-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-approve { background: #3182F6; color: white; }
+        .btn-approve:active { opacity: 0.8; }
+        .btn-reject { background: #F1F3F5; color: #868E96; }
+        .btn-reject:active { opacity: 0.8; }
+        .btn-copy-link { background: #20C997; color: white; }
+        .btn-copy-link:active { opacity: 0.8; }
+        .offer-link-box { width: 100%; margin-top: 8px; padding: 10px 12px; background: #F2F4F6; border-radius: 8px; font-size: 12px; color: #4E5968; word-break: break-all; }
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #E5E5EA; background: white; font-size: 13px; font-weight: 600; cursor: pointer; color: #4E5968; }
+        .filter-btn.active { background: #191F28; color: white; border-color: #191F28; }
     </style>
 </head>
 <body>
     <div class="container" id="adminPanel" style="display: none;">
-        <h1>👑 LINKER 매칭 현황 대시보드 <button onclick="loadRequests()" style="font-size:14px; padding:6px 12px;">새로고침</button></h1>
+        <h1>LINKER 매칭 현황 <button onclick="loadRequests()" style="font-size:14px; padding:6px 12px; border:1px solid #E5E5EA; border-radius:8px; background:white; cursor:pointer;">새로고침</button></h1>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterBy('all', this)">전체</button>
+            <button class="filter-btn" onclick="filterBy('pending', this)">대기중</button>
+            <button class="filter-btn" onclick="filterBy('approved', this)">수락(링크발송)</button>
+            <button class="filter-btn" onclick="filterBy('accepted', this)">상대방수락</button>
+            <button class="filter-btn" onclick="filterBy('rejected', this)">거절</button>
+        </div>
+
         <div id="requestList">로딩 중...</div>
     </div>
 
@@ -40,6 +70,84 @@
         var mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
         var myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
+        var currentFilter = 'all';
+
+        function filterBy(status, btnEl) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+            btnEl.classList.add('active');
+            document.querySelectorAll('.card').forEach(function(card) {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function generateToken() {
+            var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+            var token = '';
+            for (var i = 0; i < 8; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
+            return token;
+        }
+
+        function getBaseUrl() {
+            var url = window.location.href;
+            return url.substring(0, url.lastIndexOf('/') + 1);
+        }
+
+        window.approveRequest = async function(requestId, ticketNum) {
+            if (!confirm(ticketNum + " 신청을 수락하고 offer 링크를 생성할까요?")) return;
+
+            var token = generateToken();
+            var { error } = await myDb.from('match_requests').update({
+                status: 'approved',
+                offer_token: token
+            }).eq('id', requestId);
+
+            if (error) {
+                alert("처리 실패: " + error.message);
+            } else {
+                var offerLink = getBaseUrl() + 'offer.html?token=' + token;
+
+                var tempInput = document.createElement("textarea");
+                tempInput.value = offerLink;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+
+                alert("수락 완료! offer 링크가 클립보드에 복사되었습니다.\n\n" + offerLink + "\n\n이 링크를 상대방에게 카톡으로 보내주세요.");
+                loadRequests();
+            }
+        };
+
+        window.rejectRequest = async function(requestId, ticketNum) {
+            if (!confirm(ticketNum + " 신청을 거절할까요?")) return;
+
+            var { error } = await myDb.from('match_requests').update({
+                status: 'rejected'
+            }).eq('id', requestId);
+
+            if (error) {
+                alert("처리 실패: " + error.message);
+            } else {
+                loadRequests();
+            }
+        };
+
+        window.copyOfferLink = function(token) {
+            var link = getBaseUrl() + 'offer.html?token=' + token;
+            var tempInput = document.createElement("textarea");
+            tempInput.value = link;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("링크가 복사되었습니다!");
+        };
+
         async function loadRequests() {
             var list = document.getElementById('requestList');
             list.innerHTML = '데이터를 불러오는 중...';
@@ -48,42 +156,69 @@
             var { data: profiles, error: profErr } = await myDb.from('profiles').select('*');
 
             if (reqErr || profErr) { list.innerHTML = '에러 발생!'; return; }
-            if (requests.length === 0) { list.innerHTML = '아직 들어온 매칭 신청이 없습니다.'; return; }
+            if (!requests || requests.length === 0) { list.innerHTML = '아직 들어온 매칭 신청이 없습니다.'; return; }
 
             list.innerHTML = '';
 
             requests.forEach(function(req) {
-                var targetProfile = profiles.find(p => p.nickname === req.target_nickname) || {};
+                var targetProfile = profiles.find(function(p) { return p.nickname === req.target_nickname; }) || {};
                 var targetReferrerName = targetProfile.referrer_name || "알 수 없음";
                 var targetReferrerContact = targetProfile.referrer_contact || "알 수 없음";
-                
+
                 var ticketNum = req.ticket_number || "#0000";
                 var myName = req.requester_my_name || "정보없음";
                 var myContact = req.requester_my_contact || "정보없음";
                 var refName = req.requester_referrer_name || "정보없음";
+                var status = req.status || "pending";
 
-                var card = `
-                    <div class="card">
-                        <div class="ticket-badge">🎫 접수번호: ${ticketNum}</div>
-                        <div class="info-box">
-                            <div class="badge badge-requester">🙋‍♂️ 신청자 정보</div>
-                            <div class="row"><strong>본인이름</strong> <span class="highlight">${myName}</span></div>
-                            <div class="row"><strong>연락처</strong> <span class="highlight" style="color:#3182F6;">${myContact}</span></div>
-                            <div class="row"><strong>주선자</strong> ${refName} (지인)</div>
-                            <div class="row" style="color:#8B95A1; font-size:12px; margin-top:12px;">⏰ ${new Date(req.created_at).toLocaleString()}</div>
-                        </div>
-                        
-                        <div class="vs">▶️</div>
+                var statusLabel = { pending: '대기중', approved: '링크 발송됨', accepted: '상대방 수락', rejected: '거절됨' };
+                var statusClass = { pending: 'status-pending', approved: 'status-approved', accepted: 'status-accepted', rejected: 'status-rejected' };
 
-                        <div class="info-box">
-                            <div class="badge badge-target">🎯 지목받은 상대: @${req.target_nickname}</div>
-                            <div class="row"><strong>주선자</strong> <span class="highlight">${targetReferrerName}</span></div>
-                            <div class="row"><strong>연락처</strong> <span class="highlight" style="color:#F08C00;">${targetReferrerContact}</span></div>
-                        </div>
-                    </div>
-                `;
+                var actionHtml = '';
+                if (status === 'pending') {
+                    actionHtml = '<div class="action-bar">' +
+                        '<button class="action-btn btn-reject" onclick="rejectRequest(\'' + req.id + '\', \'' + ticketNum + '\')">거절</button>' +
+                        '<button class="action-btn btn-approve" onclick="approveRequest(\'' + req.id + '\', \'' + ticketNum + '\')">수락 + 링크 생성</button>' +
+                        '</div>';
+                } else if (status === 'approved' && req.offer_token) {
+                    actionHtml = '<div class="action-bar">' +
+                        '<button class="action-btn btn-copy-link" onclick="copyOfferLink(\'' + req.offer_token + '\')">offer 링크 다시 복사</button>' +
+                        '</div>' +
+                        '<div class="offer-link-box">' + getBaseUrl() + 'offer.html?token=' + req.offer_token + '</div>';
+                } else if (status === 'accepted') {
+                    actionHtml = '<div class="action-bar">' +
+                        '<div style="width:100%; text-align:center; color:#0CA678; font-weight:700; font-size:15px;">양측 수락 완료 — 결제 안내 진행</div>' +
+                        '</div>';
+                }
+
+                var card = '<div class="card" data-status="' + status + '">' +
+                    '<div class="ticket-badge">' + ticketNum + '</div>' +
+                    '<div class="status-badge ' + (statusClass[status] || '') + '">' + (statusLabel[status] || status) + '</div>' +
+                    '<div class="info-box">' +
+                        '<div class="badge badge-requester">신청자 정보</div>' +
+                        '<div class="row"><strong>본인이름</strong> <span class="highlight">' + myName + '</span></div>' +
+                        '<div class="row"><strong>연락처</strong> <span class="highlight" style="color:#3182F6;">' + myContact + '</span></div>' +
+                        '<div class="row"><strong>주선자</strong> ' + refName + '</div>' +
+                        '<div class="row" style="color:#8B95A1; font-size:12px; margin-top:12px;">' + new Date(req.created_at).toLocaleString() + '</div>' +
+                    '</div>' +
+                    '<div class="vs">▶</div>' +
+                    '<div class="info-box">' +
+                        '<div class="badge badge-target">상대방: @' + req.target_nickname + '</div>' +
+                        '<div class="row"><strong>주선자</strong> <span class="highlight">' + targetReferrerName + '</span></div>' +
+                        '<div class="row"><strong>연락처</strong> <span class="highlight" style="color:#F08C00;">' + targetReferrerContact + '</span></div>' +
+                    '</div>' +
+                    actionHtml +
+                    '</div>';
+
                 list.innerHTML += card;
             });
+
+            // 필터 재적용
+            if (currentFilter !== 'all') {
+                document.querySelectorAll('.card').forEach(function(card) {
+                    card.style.display = (card.dataset.status === currentFilter) ? 'flex' : 'none';
+                });
+            }
         }
 
         window.onload = loadRequests;
