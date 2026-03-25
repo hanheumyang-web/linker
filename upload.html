@@ -42,6 +42,14 @@
                 <input type="file" id="photos" accept="image/*" multiple class="file-upload" style="width: 100%; text-align:right;">
             </div>
             <div class="input-row">
+                <span class="input-label">성별</span>
+                <select id="gender">
+                    <option value="" disabled selected>선택</option>
+                    <option value="남성">남성</option>
+                    <option value="여성">여성</option>
+                </select>
+            </div>
+            <div class="input-row">
                 <span class="input-label">나이</span>
                 <input type="number" id="age" placeholder="예: 28">
             </div>
@@ -116,15 +124,16 @@
             if(checkboxes.length > 3) { alert("매력 포인트는 최대 3개까지만 선택 가능합니다."); return; }
             if(checkboxes.length === 0) { alert("매력 포인트를 최소 1개 이상 선택해주세요."); return; }
             
+            var gender = document.getElementById('gender').value;
             var age = document.getElementById('age').value;
             var job = document.getElementById('job').value;
             var location = document.getElementById('location').value;
             var goal = document.getElementById('goal').value;
             var referrerName = document.getElementById('referrer_name').value;
             var referrerContact = document.getElementById('referrer_contact').value;
-            
+
             // 필수 입력 체크
-            if(!age || !job || !location || !goal || !referrerName || !referrerContact) {
+            if(!gender || !age || !job || !location || !goal || !referrerName || !referrerContact) {
                 alert("모든 기본 정보와 주선자 정보를 빈칸 없이 입력해주세요."); return;
             }
 
@@ -133,13 +142,37 @@
 
             var imageUrls = [];
 
+            // 사진 압축 함수 (최대 800px, 품질 0.7)
+            function compressImage(file) {
+                return new Promise(function(resolve) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var img = new Image();
+                        img.onload = function() {
+                            var canvas = document.createElement('canvas');
+                            var maxSize = 800;
+                            var w = img.width, h = img.height;
+                            if (w > maxSize || h > maxSize) {
+                                if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+                                else { w = Math.round(w * maxSize / h); h = maxSize; }
+                            }
+                            canvas.width = w; canvas.height = h;
+                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                            canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', 0.7);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
             if (files.length > 0) {
                 for (var i = 0; i < files.length; i++) {
-                    var file = files[i];
-                    var ext = file.name.split('.').pop();
-                    var fileName = Date.now() + "_" + i + "." + ext;
-                    var { data: upData, error: upErr } = await myDb.storage.from('photos').upload(fileName, file, {
-                        contentType: file.type,
+                    btn.innerText = "사진 압축 및 업로드 중... (" + (i+1) + "/" + files.length + ")";
+                    var compressed = await compressImage(files[i]);
+                    var fileName = Date.now() + "_" + i + ".jpg";
+                    var { data: upData, error: upErr } = await myDb.storage.from('photos').upload(fileName, compressed, {
+                        contentType: 'image/jpeg',
                         upsert: false
                     });
 
@@ -152,7 +185,6 @@
                     }
 
                     var { data: urlData } = myDb.storage.from('photos').getPublicUrl(fileName);
-                    console.log("업로드 완료, Public URL:", urlData.publicUrl);
                     imageUrls.push(urlData.publicUrl);
                 }
             }
@@ -163,6 +195,7 @@
             
             var profileData = {
                 nickname: nickname,
+                gender: gender,
                 age: parseInt(age),
                 job: job,
                 location: location,
@@ -181,12 +214,14 @@
                 btn.disabled = false;
                 btn.innerText = "프로필 등록 완료";
             } else {
-                // 텔레그램 알림
-                fetch('https://api.telegram.org/bot8714445208:AAHj1eum2VjHr4tjkBKnnAqMxLXQd4zhpr4/sendMessage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: '8719885101', text: '📋 새 프로필 등록!\n\n닉네임: @' + nickname + '\n나이: ' + age + '세\n직장: ' + job + '\n주선자: ' + referrerName })
-                }).catch(function(){});
+                // 텔레그램 알림 (실패해도 등록은 진행)
+                try {
+                    fetch('https://api.telegram.org/bot8714445208:AAHj1eum2VjHr4tjkBKnnAqMxLXQd4zhpr4/sendMessage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: '8719885101', text: '📋 새 프로필 등록!\n\n닉네임: @' + nickname + '\n나이: ' + age + '세\n직장: ' + job + '\n주선자: ' + referrerName })
+                    }).catch(function(){});
+                } catch(e) {}
 
                 alert("✅ 프로필 등록 완료!\n\n부여된 익명 닉네임: @" + nickname);
                 if (window.location.protocol === 'file:') {
