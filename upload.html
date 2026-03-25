@@ -136,17 +136,23 @@
             if (files.length > 0) {
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-                    var fileName = Date.now() + "_" + i + "_" + file.name;
-                    var { data: upData, error: upErr } = await myDb.storage.from('photos').upload(fileName, file);
-                    
+                    var ext = file.name.split('.').pop();
+                    var fileName = Date.now() + "_" + i + "." + ext;
+                    var { data: upData, error: upErr } = await myDb.storage.from('photos').upload(fileName, file, {
+                        contentType: file.type,
+                        upsert: false
+                    });
+
                     if (upErr) {
                         alert("사진 업로드 실패: " + upErr.message);
+                        console.error("Upload error:", upErr);
                         btn.disabled = false;
                         btn.innerText = "프로필 등록 완료";
                         return;
                     }
-                    
+
                     var { data: urlData } = myDb.storage.from('photos').getPublicUrl(fileName);
+                    console.log("업로드 완료, Public URL:", urlData.publicUrl);
                     imageUrls.push(urlData.publicUrl);
                 }
             }
@@ -175,6 +181,13 @@
                 btn.disabled = false;
                 btn.innerText = "프로필 등록 완료";
             } else {
+                // 텔레그램 알림
+                fetch('https://api.telegram.org/bot8714445208:AAHj1eum2VjHr4tjkBKnnAqMxLXQd4zhpr4/sendMessage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: '8719885101', text: '📋 새 프로필 등록!\n\n닉네임: @' + nickname + '\n나이: ' + document.getElementById('age').value + '세\n직장: ' + document.getElementById('job').value + '\n주선자: ' + document.getElementById('referrerName').value })
+                }).catch(function(){});
+
                 alert("✅ 프로필 등록 완료!\n\n부여된 익명 닉네임: @" + nickname);
                 if (window.location.protocol === 'file:') {
                     window.location.href = 'index.html';
