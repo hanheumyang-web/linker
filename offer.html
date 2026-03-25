@@ -55,9 +55,18 @@
         var mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
         var myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
 
+        function sendTelegram(msg) {
+            fetch('https://api.telegram.org/bot8714445208:AAHj1eum2VjHr4tjkBKnnAqMxLXQd4zhpr4/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: '8719885101', text: msg })
+            });
+        }
+
         var urlParams = new URLSearchParams(window.location.search);
         var token = urlParams.get('token');
         var content = document.getElementById('content');
+        var currentReq = null;
 
         async function loadOffer() {
             if (!token) {
@@ -73,6 +82,7 @@
             }
 
             var req = requests[0];
+            currentReq = req;
 
             // 이미 수락/거절된 경우
             if (req.status === 'accepted') {
@@ -147,12 +157,14 @@
             }
 
             if (newStatus === 'accepted') {
+                sendTelegram("✅ 매칭 수락!\n\n접수번호: " + (currentReq.ticket_number || '') + "\n대상: @" + (currentReq.target_nickname || '') + "\n\n→ 결제 안내 진행하세요!");
                 content.innerHTML = '<div class="card"><div class="result-card">' +
                     '<div class="result-emoji">🎉</div>' +
                     '<div class="result-title">매칭을 수락하셨습니다!</div>' +
                     '<div class="result-desc">운영자가 확인 후 결제 안내를 드릴게요.<br>조금만 기다려주세요!</div>' +
                     '</div></div>';
             } else {
+                sendTelegram("❌ 매칭 거절\n\n접수번호: " + (currentReq.ticket_number || '') + "\n대상: @" + (currentReq.target_nickname || ''));
                 content.innerHTML = '<div class="card"><div class="result-card">' +
                     '<div class="result-emoji">😌</div>' +
                     '<div class="result-title">거절이 완료되었습니다</div>' +
