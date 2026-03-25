@@ -198,6 +198,8 @@
                     '</div>' +
                     photoHtml +
                     '<div class="info-row"><span class="info-label">나이</span> ' + profile.age + '세</div>' +
+                    (profile.height ? '<div class="info-row"><span class="info-label">키</span> ' + profile.height + 'cm</div>' : '') +
+                    (profile.mbti ? '<div class="info-row"><span class="info-label">MBTI</span> ' + profile.mbti + '</div>' : '') +
                     '<div class="info-row"><span class="info-label">직장</span> ' + profile.job + '</div>' +
                     '<div class="info-row"><span class="info-label">목적</span> ' + profile.goal + '</div>' +
                     '<div class="info-row"><span class="info-label">위치</span> ' + profile.location + '</div>' +
