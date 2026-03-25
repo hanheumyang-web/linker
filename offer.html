@@ -114,12 +114,39 @@
 
             // 타겟 본인 프로필 (신청 받은 사람이 본인 확인용)
             if (targetProfile) {
+                // 사진
+                var photoHtml = '';
+                if (targetProfile.image_url) {
+                    var urls = targetProfile.image_url.split(',').filter(function(u) {
+                        return u.trim() !== '' && u.trim().startsWith('http');
+                    });
+                    if (urls.length > 0) {
+                        photoHtml = '<div class="photo-slider">';
+                        urls.forEach(function(url) {
+                            photoHtml += '<img src="' + url.trim() + '" class="photo-slide">';
+                        });
+                        photoHtml += '</div>';
+                    }
+                }
+
+                // 태그
+                var tagsHtml = '';
+                if (targetProfile.tags) {
+                    var tagArr = targetProfile.tags.split(', ');
+                    tagsHtml = '<div class="tags">';
+                    tagArr.forEach(function(t) { if (t.trim()) tagsHtml += '<span class="tag">' + t.trim() + '</span>'; });
+                    tagsHtml += '</div>';
+                }
+
                 html += '<div class="card">' +
                     '<div class="card-title">나에게 온 매칭 요청 (' + req.ticket_number + ')</div>' +
+                    photoHtml +
                     '<div class="info-row"><span class="info-label">내 닉네임</span> <span class="info-value">@' + targetProfile.nickname + '</span></div>' +
                     '<div class="info-row"><span class="info-label">나이</span> <span class="info-value">' + targetProfile.age + '세</span></div>' +
                     '<div class="info-row"><span class="info-label">직장</span> <span class="info-value">' + (targetProfile.job || '-') + '</span></div>' +
                     '<div class="info-row"><span class="info-label">위치</span> <span class="info-value">' + (targetProfile.location || '-') + '</span></div>' +
+                    '<div class="info-row"><span class="info-label">목적</span> <span class="info-value">' + (targetProfile.goal || '-') + '</span></div>' +
+                    tagsHtml +
                     '</div>';
             }
 
