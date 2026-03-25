@@ -3,275 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKER 가이드</title>
+    <title>LINKER - 지인 기반 프라이빗 매칭</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <style>
-        :root { 
-            --bg-color: #F2F4F6; 
-            --card-bg: #FFFFFF; 
-            --text-main: #191F28; 
-            --text-sub: #4E5968; 
-            --text-light: #8B95A1;
-            --accent: #3182F6; 
-            --border: #E5E5EA; 
+        :root {
+            --bg: #F2F4F6; --card: #FFFFFF; --main: #191F28; --sub: #4E5968; --light: #8B95A1;
+            --accent: #3182F6; --accent-light: #E8F3FF; --border: #E5E5EA;
+            --green: #20C997; --green-light: #E6FCF5;
+            --orange: #F08C00; --orange-light: #FFF4E6;
+            --pink: #F06595; --pink-light: #FFF0F6;
         }
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.6; letter-spacing: -0.3px; }
-        .container { max-width: 400px; margin: 0 auto; padding-bottom: 40px; }
-        
-        /* 토스 감성 소개 섹션 */
-        .toss-hero { padding: 20px 0 30px; }
-        .toss-badge { display: inline-block; background: #E8F3FF; color: var(--accent); font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 8px; margin-bottom: 16px; }
-        .toss-title { font-size: 28px; font-weight: 800; line-height: 1.35; letter-spacing: -0.5px; margin: 0 0 12px; color: var(--text-main); word-break: keep-all; }
-        .toss-subtitle { font-size: 15px; color: var(--text-sub); line-height: 1.5; margin-bottom: 30px; }
-        
-        .feature-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .feature-card { background: var(--card-bg); border-radius: 16px; padding: 20px; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        .feature-icon { font-size: 26px; margin-right: 16px; background: #F2F4F6; min-width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .feature-text { display: flex; flex-direction: column; }
-        .feature-text strong { font-size: 16px; font-weight: 700; color: #333D4B; margin-bottom: 4px; }
-        .feature-text span { font-size: 13px; color: var(--text-light); line-height: 1.4; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--main); line-height: 1.6; letter-spacing: -0.3px; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 440px; margin: 0 auto; padding: 0 20px 60px; }
 
-        .section { background: var(--card-bg); border-radius: 16px; padding: 24px 20px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-main); }
-        
-        /* 🚀 탭 스위치 (세그먼트 컨트롤) UI */
-        .tab-switch { display: flex; background: #F2F4F6; border-radius: 12px; padding: 4px; margin-bottom: 24px; position: relative; }
-        .tab-btn { flex: 1; text-align: center; padding: 12px 0; font-size: 15px; font-weight: 600; color: var(--text-sub); cursor: pointer; border-radius: 8px; transition: all 0.2s ease; z-index: 2; position: relative; }
-        .tab-btn.active { color: var(--text-main); background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        /* ===== HERO ===== */
+        .hero { text-align: center; padding: 48px 0 40px; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; background: radial-gradient(circle, rgba(49,130,246,0.08) 0%, transparent 70%); border-radius: 50%; z-index: 0; }
+        .hero-icon { font-size: 64px; margin-bottom: 16px; position: relative; z-index: 1; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .hero-badge { display: inline-block; background: var(--accent); color: white; font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 20px; margin-bottom: 20px; letter-spacing: 0.5px; position: relative; z-index: 1; }
+        .hero h1 { font-size: 30px; font-weight: 800; line-height: 1.3; letter-spacing: -1px; margin-bottom: 14px; position: relative; z-index: 1; word-break: keep-all; }
+        .hero h1 span { color: var(--accent); }
+        .hero p { font-size: 15px; color: var(--sub); line-height: 1.6; position: relative; z-index: 1; }
 
-        /* 진행 순서도 CSS */
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        /* ===== 특징 카드 (가로 스크롤) ===== */
+        .features-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 20px; margin: 0 -20px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .features-scroll::-webkit-scrollbar { display: none; }
+        .feat-card { flex: 0 0 260px; background: var(--card); border-radius: 20px; padding: 28px 24px; scroll-snap-align: start; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+        .feat-emoji { font-size: 40px; margin-bottom: 14px; }
+        .feat-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: var(--main); }
+        .feat-card p { font-size: 13px; color: var(--sub); line-height: 1.55; word-break: keep-all; }
+
+        /* ===== 숫자 통계 배너 ===== */
+        .stats-bar { display: flex; justify-content: space-around; background: var(--card); border-radius: 16px; padding: 20px 10px; margin: 20px 0 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 22px; font-weight: 800; color: var(--accent); }
+        .stat-label { font-size: 12px; color: var(--light); margin-top: 2px; }
+
+        /* ===== 플로우 다이어그램 (비주얼) ===== */
+        .section { margin-bottom: 24px; }
+        .section-header { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+        .section-sub { font-size: 14px; color: var(--sub); margin-bottom: 20px; }
+
+        .tab-switch { display: flex; background: #E9ECEF; border-radius: 14px; padding: 4px; margin-bottom: 28px; }
+        .tab-btn { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 700; color: var(--light); cursor: pointer; border-radius: 10px; transition: all 0.25s ease; position: relative; }
+        .tab-btn.active { color: var(--main); background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tab-content { display: none; animation: slideUp 0.35s ease; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        .flow-container { position: relative; padding-top: 8px; }
-        .flow-item { display: flex; position: relative; padding-bottom: 32px; }
-        .flow-item:last-child { padding-bottom: 0; }
-        .flow-line { position: absolute; left: 24px; top: 48px; bottom: 0; width: 2px; background: #E5E5EA; z-index: 1; }
-        .flow-item:last-child .flow-line { display: none; }
-        .flow-icon { width: 48px; height: 48px; background: #F2F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; z-index: 2; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .flow-content-text { margin-left: 16px; padding-top: 2px; }
-        .flow-step-badge { font-size: 12px; font-weight: 700; display: inline-block; padding: 4px 10px; border-radius: 6px; margin-bottom: 6px; }
-        .step-blue { background: #E8F3FF; color: #3182F6; }
-        .step-orange { background: #FFF4E6; color: #F08C00; }
-        .flow-text { font-size: 15px; font-weight: 600; color: var(--text-main); line-height: 1.4; margin-bottom: 4px; }
-        .flow-subtext { font-size: 13px; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
-        
-        .link-box { background: var(--bg-color); padding: 16px; border-radius: 12px; margin-top: 12px; word-break: break-all; }
-        .link-title { font-weight: 700; font-size: 14px; color: var(--accent); margin-bottom: 6px; display: block; }
-        .link-url { font-size: 13px; color: var(--text-sub); display: block; margin-bottom: 12px; }
-        
-        .btn-group { display: flex; gap: 6px; }
-        .sub-btn { flex: 1; background: white; border: 1px solid var(--border); padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-sub); cursor: pointer; text-align: center; }
-        .go-btn { flex: 1; background: var(--accent); border: 1px solid var(--accent); padding: 10px 0; border-radius: 8px; font-size: 13px; font-weight: 600; color: white; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; }
-        
-        .warning { background: #FFF4F4; border: none; }
-        .warning-title { color: #E32636; font-weight: 700; font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; }
-        .warning-text { font-size: 14px; color: #4E5968; }
-        .warning-text b { color: #E32636; }
-        
-        .footer { text-align: center; font-size: 13px; color: var(--text-light); margin-top: 40px; }
+        /* 비주얼 플로우 */
+        .v-flow { display: flex; flex-direction: column; gap: 0; position: relative; }
+        .v-step { display: flex; gap: 16px; position: relative; }
+        .v-track { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 48px; }
+        .v-num { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: white; flex-shrink: 0; }
+        .v-line { flex: 1; width: 2px; margin: 6px 0; border-radius: 1px; }
+        .v-card { flex: 1; background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); border-left: 3px solid transparent; }
+        .v-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .v-card p { font-size: 13px; color: var(--sub); line-height: 1.6; word-break: keep-all; }
+        .v-card .v-highlight { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 6px; margin-top: 8px; }
+
+        /* 컬러 테마 */
+        .theme-blue .v-num { background: var(--accent); }
+        .theme-blue .v-line { background: #B8D4F8; }
+        .theme-blue .v-card { border-left-color: var(--accent); }
+        .theme-orange .v-num { background: var(--orange); }
+        .theme-orange .v-line { background: #FFD8A8; }
+        .theme-orange .v-card { border-left-color: var(--orange); }
+
+        /* ===== 매칭비 안내 ===== */
+        .pricing-card { background: linear-gradient(135deg, #3182F6 0%, #1B6CF2 100%); border-radius: 20px; padding: 32px 24px; color: white; margin-bottom: 24px; position: relative; overflow: hidden; }
+        .pricing-card::after { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        .pricing-card .price-badge { display: inline-block; background: rgba(255,255,255,0.2); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 8px; margin-bottom: 14px; }
+        .pricing-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+        .pricing-card p { font-size: 14px; opacity: 0.85; line-height: 1.6; word-break: keep-all; }
+        .pricing-card .price-amount { font-size: 36px; font-weight: 800; margin: 16px 0 4px; }
+        .pricing-card .price-note { font-size: 13px; opacity: 0.7; }
+
+        /* ===== 링크 섹션 ===== */
+        .links-section { background: var(--card); border-radius: 20px; padding: 28px 20px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+        .links-section h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+        .link-item { background: var(--bg); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+        .link-item:last-child { margin-bottom: 0; }
+        .link-label { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .link-url { font-size: 12px; color: var(--light); display: block; margin-bottom: 12px; word-break: break-all; }
+        .btn-row { display: flex; gap: 6px; }
+        .btn-copy { flex: 1; background: white; border: 1px solid var(--border); padding: 10px 0; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--sub); cursor: pointer; font-family: inherit; }
+        .btn-share { flex: 1; background: white; border: 1px solid var(--border); padding: 10px 0; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--sub); cursor: pointer; font-family: inherit; }
+        .btn-go { flex: 1; background: var(--accent); border: none; padding: 10px 0; border-radius: 10px; font-size: 13px; font-weight: 600; color: white; cursor: pointer; text-decoration: none; text-align: center; display: block; font-family: inherit; }
+
+        /* ===== 주의사항 ===== */
+        .warning-card { background: #FFF5F5; border-radius: 16px; padding: 24px 20px; margin-bottom: 24px; }
+        .warning-card h3 { font-size: 16px; font-weight: 700; color: #E03131; margin-bottom: 14px; }
+        .warning-card ul { list-style: none; padding: 0; }
+        .warning-card li { font-size: 14px; color: var(--sub); padding: 6px 0; padding-left: 20px; position: relative; line-height: 1.55; word-break: keep-all; }
+        .warning-card li::before { content: '•'; position: absolute; left: 4px; color: #E03131; font-weight: 700; }
+        .warning-card li b { color: #E03131; }
+
+        /* ===== FAQ 아코디언 ===== */
+        .faq-section { margin-bottom: 24px; }
+        .faq-item { background: var(--card); border-radius: 14px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.02); }
+        .faq-q { padding: 18px 20px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .faq-q::after { content: '+'; font-size: 20px; font-weight: 300; color: var(--light); transition: transform 0.2s; }
+        .faq-item.open .faq-q::after { content: '-'; }
+        .faq-a { padding: 0 20px 18px; font-size: 14px; color: var(--sub); line-height: 1.6; display: none; word-break: keep-all; }
+        .faq-item.open .faq-a { display: block; }
+
+        /* ===== CTA 하단 버튼 ===== */
+        .cta-bottom { display: flex; gap: 10px; margin-top: 32px; }
+        .cta-btn { flex: 1; padding: 16px 0; border-radius: 14px; font-size: 15px; font-weight: 700; text-align: center; text-decoration: none; border: none; cursor: pointer; font-family: inherit; }
+        .cta-primary { background: var(--accent); color: white; }
+        .cta-secondary { background: white; color: var(--main); border: 1px solid var(--border); }
+
+        .footer { text-align: center; font-size: 12px; color: var(--light); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+        /* Toast 알림 */
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #333D4B; color: white; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 999; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
     <div class="container">
-        
-        <div class="toss-hero">
-            <div class="toss-badge">LINKER 프라이빗 매칭</div>
-            <h1 class="toss-title">믿을 수 있는<br>지인 기반 소개팅</h1>
-            <p class="toss-subtitle">내 친구의 좋은 사람을 소개받고,<br>내 좋은 친구를 안전하게 소개해주세요.</p>
 
-            <div class="feature-list">
-                <div class="feature-card">
-                    <div class="feature-icon">🤝</div>
-                    <div class="feature-text">
-                        <strong>100% 지인 추천제</strong>
-                        <span>신원이 확실하게 검증된 사람만<br>안전하게 매칭해 드려요.</span>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <div class="feature-text">
-                        <strong>철저한 프라이버시</strong>
-                        <span>사진은 원할 때, 매칭 상대에게만<br>운영자가 직접 비공개로 전달해요.</span>
-                    </div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💸</div>
-                    <div class="feature-text">
-                        <strong>주선자 리워드 지급</strong>
-                        <span>추천한 친구의 매칭이 성사되면<br>주선자님께 5,000원을 보내드려요.</span>
-                    </div>
-                </div>
+        <!-- HERO -->
+        <div class="hero">
+            <div class="hero-icon">💘</div>
+            <div class="hero-badge">PRIVATE MATCHING</div>
+            <h1>내 친구의 좋은 사람,<br><span>안전하게</span> 만나보세요</h1>
+            <p>가입도, 앱 설치도 필요 없어요.<br>지인이 보증하는 사람만, 운영자가 직접 연결합니다.</p>
+        </div>
+
+        <!-- 특징 카드 가로 스크롤 -->
+        <div class="features-scroll">
+            <div class="feat-card">
+                <div class="feat-emoji">🤝</div>
+                <h3>100% 지인 추천제</h3>
+                <p>모든 프로필은 반드시 지인(주선자)이 대리 등록합니다. 신원 불명의 사람은 절대 없어요.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-emoji">🛡️</div>
+                <h3>운영자 직접 관리</h3>
+                <p>매칭 신청부터 연락처 교환까지, 운영자가 직접 검토하고 양측에 안내합니다.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-emoji">🔒</div>
+                <h3>프라이버시 보장</h3>
+                <p>사진과 연락처는 매칭 수락 전까지 상대에게 절대 노출되지 않아요.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-emoji">💸</div>
+                <h3>주선자 리워드</h3>
+                <p>추천한 친구의 매칭이 성사되면 주선자님께 리워드가 지급됩니다.</p>
             </div>
         </div>
 
+        <!-- 통계 배너 -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-num">100%</div>
+                <div class="stat-label">지인 검증</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">0건</div>
+                <div class="stat-label">개인정보 유출</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">1:1</div>
+                <div class="stat-label">운영자 관리</div>
+            </div>
+        </div>
+
+        <!-- 플로우 다이어그램 -->
         <div class="section">
-            <div class="section-title">👀 한눈에 보는 진행 방식</div>
-            
+            <div class="section-header">이렇게 진행돼요</div>
+            <div class="section-sub">역할별로 확인해보세요</div>
+
             <div class="tab-switch">
-                <div class="tab-btn active" id="btn-host" onclick="switchTab('host')">🙋‍♂️ 주선자용 가이드</div>
-                <div class="tab-btn" id="btn-guest" onclick="switchTab('guest')">🤫 소개받는 분 가이드</div>
+                <div class="tab-btn active" onclick="switchTab('host')">주선자 가이드</div>
+                <div class="tab-btn" onclick="switchTab('guest')">참가자 가이드</div>
             </div>
 
+            <!-- 주선자 가이드 -->
             <div class="tab-content active" id="content-host">
-                <div class="flow-container">
-                    <div class="flow-item">
-                        <div class="flow-line"></div>
-                        <div class="flow-icon">📝</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-blue">Step 1</div>
-                            <div class="flow-text">지인(참가자)의 프로필 등록</div>
-                            <div class="flow-subtext">하단의 [친구 등록 링크]를 통해 주선자님이 직접 친구의 프로필과 장점을 올려주세요.</div>
+                <div class="v-flow theme-blue">
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">1</div>
+                            <div class="v-line"></div>
+                        </div>
+                        <div class="v-card">
+                            <h4>📝 지인 프로필 등록</h4>
+                            <p>등록 링크에서 친구의 닉네임, 나이, 직장, 매력 포인트를 작성하고 사진을 올려주세요.</p>
+                            <div class="v-highlight">소요 시간: 약 2분</div>
                         </div>
                     </div>
-                    <div class="flow-item">
-                        <div class="flow-line"></div>
-                        <div class="flow-icon">👀</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-blue">Step 2</div>
-                            <div class="flow-text">피드 노출 및 매칭 대기</div>
-                            <div class="flow-subtext">등록된 프로필은 사진 없이 철저히 익명으로 메인 피드에 노출됩니다.</div>
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">2</div>
+                            <div class="v-line"></div>
+                        </div>
+                        <div class="v-card">
+                            <h4>☕ 편하게 기다리기</h4>
+                            <p>등록 완료! 프로필은 피드에 자동 노출됩니다. 주선자님은 더 이상 할 일이 없어요.</p>
+                            <div class="v-highlight">주선자 개입 불필요</div>
                         </div>
                     </div>
-                    <div class="flow-item">
-                        <div class="flow-line"></div>
-                        <div class="flow-icon">💌</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-blue">Step 3</div>
-                            <div class="flow-text">매칭 신청 알림 받기</div>
-                            <div class="flow-subtext">누군가 내 친구에게 매칭을 신청하면, <b>운영자가 주선자님께 먼저 연락을 드립니다.</b></div>
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">3</div>
+                            <div class="v-line"></div>
+                        </div>
+                        <div class="v-card">
+                            <h4>🔔 매칭 성사 알림</h4>
+                            <p>누군가 내 친구에게 매칭을 신청하고, 양측 모두 수락하면 운영자가 결과를 알려드립니다.</p>
                         </div>
                     </div>
-                    <div class="flow-item">
-                        <div class="flow-icon">💸</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-blue">Step 4</div>
-                            <div class="flow-text">친구 의사 묻기 & 리워드!</div>
-                            <div class="flow-subtext">전달받은 상대방 사진을 친구에게 보여주세요. 수락하여 매칭이 성사되면 주선자님께 <b>5,000원</b>이 지급됩니다.</div>
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">🎉</div>
+                        </div>
+                        <div class="v-card">
+                            <h4>💸 리워드 수령</h4>
+                            <p>매칭이 성사되면 주선자님께 리워드가 지급됩니다. 좋은 인연을 만들어주셔서 감사합니다!</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- 참가자(소개받는 분) 가이드 -->
             <div class="tab-content" id="content-guest">
-                <div class="flow-container">
-                    <div class="flow-item">
-                        <div class="flow-line"></div>
-                        <div class="flow-icon">😌</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-orange">Step 1</div>
-                            <div class="flow-text">가입이나 등록은 일절 불필요</div>
-                            <div class="flow-subtext">내 친구(주선자)가 알아서 예쁘게 올려주므로, 본인은 사이트에 가입할 필요가 전혀 없습니다.</div>
+                <div class="v-flow theme-orange">
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">1</div>
+                            <div class="v-line"></div>
+                        </div>
+                        <div class="v-card">
+                            <h4>😌 가입 없이 참여</h4>
+                            <p>내 친구(주선자)가 프로필을 대신 등록해줍니다. 본인은 가입이나 사진 등록이 필요 없어요.</p>
+                            <div class="v-highlight">회원가입 불필요</div>
                         </div>
                     </div>
-                    <div class="flow-item">
-                        <div class="flow-line"></div>
-                        <div class="flow-icon">🔒</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-orange">Step 2</div>
-                            <div class="flow-text">철저한 익명 보장 대기</div>
-                            <div class="flow-subtext">내 사진이나 실명은 피드에 절대 노출되지 않아요. (ex. @다정한_토끼) 마음 편히 기다리세요!</div>
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">2</div>
+                            <div class="v-line"></div>
+                        </div>
+                        <div class="v-card">
+                            <h4>🔍 피드에서 상대 탐색</h4>
+                            <p>메인 피드에서 다른 참가자들의 프로필을 구경하고, 마음에 드는 사람에게 매칭을 신청하세요.</p>
                         </div>
                     </div>
-                    <div class="flow-item">
-                        <div class="flow-line"></div>
-                        <div class="flow-icon">💬</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-orange">Step 3</div>
-                            <div class="flow-text">친구를 통한 매칭 제안</div>
-                            <div class="flow-subtext">누군가 나에게 호감을 표시하면, 내 친구(주선자)가 카톡으로 상대방의 사진과 정보를 몰래 전달해 줍니다.</div>
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">3</div>
+                            <div class="v-line"></div>
+                        </div>
+                        <div class="v-card">
+                            <h4>💌 매칭 제안 수신</h4>
+                            <p>누군가 나에게 매칭을 신청하면, 운영자가 전용 링크를 보내드려요. 링크에서 상대방 정보를 확인하고 수락/거절을 선택하세요.</p>
+                            <div class="v-highlight">전용 링크로 간편하게</div>
                         </div>
                     </div>
-                    <div class="flow-item">
-                        <div class="flow-icon">🤝</div>
-                        <div class="flow-content-text">
-                            <div class="flow-step-badge step-orange">Step 4</div>
-                            <div class="flow-text">마음에 들면 수락하기</div>
-                            <div class="flow-subtext">상대방이 마음에 들면 수락해주세요. 양측 매칭비 입금 완료 후 안전하게 연락처가 교환됩니다.</div>
+                    <div class="v-step">
+                        <div class="v-track">
+                            <div class="v-num">🤝</div>
+                        </div>
+                        <div class="v-card">
+                            <h4>✅ 양측 수락 → 연결</h4>
+                            <p>양측 모두 수락하면 매칭비 결제 안내 후 연락처가 안전하게 교환됩니다.</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border); font-size: 13px; color: var(--text-sub); line-height: 1.5;">
-                <b style="color: var(--accent);">※ 매칭비 안내:</b> 양측 모두 수락 시에만 10,000원의 매칭비가 발생합니다. 이는 무분별한 찔러보기를 방지하기 위한 최소한의 허들입니다.
+        </div>
+
+        <!-- 매칭비 카드 -->
+        <div class="pricing-card">
+            <div class="price-badge">MATCHING FEE</div>
+            <h3>매칭비 안내</h3>
+            <p>양측 모두 수락한 경우에만 발생하며,<br>무분별한 신청을 방지하기 위한 최소한의 허들입니다.</p>
+            <div class="price-amount">30,000원</div>
+            <div class="price-note">매칭 성사 시 1회 / 불발 시 무료</div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-section">
+            <div class="section-header" style="margin-bottom: 16px;">자주 묻는 질문</div>
+
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">내 사진이 피드에 공개되나요?</div>
+                <div class="faq-a">사진은 피드에 표시되지만, 닉네임은 익명(예: @다정한_토끼)으로 보호됩니다. 실명이나 연락처는 매칭 수락 전까지 절대 노출되지 않습니다.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">매칭을 거절하면 불이익이 있나요?</div>
+                <div class="faq-a">전혀 없습니다. 부담 없이 거절하실 수 있으며, 상대방에게는 "매칭이 성사되지 않았습니다"라고만 안내됩니다.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">주선자 리워드는 어떻게 받나요?</div>
+                <div class="faq-a">매칭 성사 후 운영자가 주선자님께 직접 연락드려 리워드를 송금합니다. 별도 신청이 필요 없어요.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">연락처 교환은 어떻게 되나요?</div>
+                <div class="faq-a">양측 매칭비 결제 확인 후, 운영자가 안전하게 양측의 연락처를 전달해드립니다.</div>
             </div>
         </div>
 
-        <div class="section">
-            <div class="section-title">🔗 운영 및 공유 링크</div>
-            
-            <div class="link-box">
-                <span class="link-title">🔗 [주선자 전용] 친구 등록 링크</span>
+        <!-- 링크 섹션 -->
+        <div class="links-section">
+            <h3>🔗 바로가기</h3>
+
+            <div class="link-item">
+                <div class="link-label">📝 주선자 전용 — 친구 등록</div>
                 <span class="link-url" id="url-upload">https://hanheumyang-web.github.io/linker/upload.html</span>
-                <div class="btn-group">
-                    <button class="sub-btn" onclick="copyText('url-upload')">복사</button>
-                    <button class="sub-btn" onclick="shareLink('url-upload', 'LINKER 친구 등록', '친구의 프로필을 등록해주세요!')">공유</button>
-                    <a href="https://hanheumyang-web.github.io/linker/upload.html" target="_blank" class="go-btn">바로가기</a>
+                <div class="btn-row">
+                    <button class="btn-copy" onclick="copyUrl('url-upload')">복사</button>
+                    <button class="btn-share" onclick="shareUrl('url-upload', 'LINKER 친구 등록', '친구의 프로필을 등록해주세요!')">공유</button>
+                    <a href="https://hanheumyang-web.github.io/linker/upload.html" target="_blank" class="btn-go">바로가기</a>
                 </div>
             </div>
 
-            <div class="link-box" style="margin-top: 16px;">
-                <span class="link-title">🔗 [친구 공유용] 매칭 피드 링크</span>
-                <span class="link-url" id="url-feed">https://hanheumyang-web.github.io/linker</span>
-                <div class="btn-group">
-                    <button class="sub-btn" onclick="copyText('url-feed')">복사</button>
-                    <button class="sub-btn" onclick="shareLink('url-feed', 'LINKER 매칭 피드', '프라이빗 매칭 피드를 확인해보세요!')">공유</button>
-                    <a href="https://hanheumyang-web.github.io/linker" target="_blank" class="go-btn">바로가기</a>
+            <div class="link-item">
+                <div class="link-label">💘 매칭 피드 보러가기</div>
+                <span class="link-url" id="url-feed">https://hanheumyang-web.github.io/linker/</span>
+                <div class="btn-row">
+                    <button class="btn-copy" onclick="copyUrl('url-feed')">복사</button>
+                    <button class="btn-share" onclick="shareUrl('url-feed', 'LINKER 매칭 피드', '프라이빗 매칭 피드를 확인해보세요!')">공유</button>
+                    <a href="https://hanheumyang-web.github.io/linker/" target="_blank" class="btn-go">바로가기</a>
                 </div>
             </div>
         </div>
 
-        <div class="section warning">
-            <div class="warning-title">⚠️ 필독 주의사항</div>
-            <div class="warning-text">
-                • <b>등록 링크</b>는 주선자님만 사용해 주세요. 친구에게 직접 보내서 등록하게 하면 관리가 어려워집니다.<br><br>
-                • <b>피드 링크</b>를 등록된 친구에게 공유하여, 자신의 프로필이 어떻게 올라갔는지 확인하게 해주세요.<br><br>
-                • 사진은 보안상 <b>운영자가 개별적으로</b> 상대방에게 전달합니다. (매칭 신청 시에만 공개)
-            </div>
+        <!-- 주의사항 -->
+        <div class="warning-card">
+            <h3>⚠️ 꼭 읽어주세요</h3>
+            <ul>
+                <li><b>등록 링크</b>는 주선자님만 사용해주세요. 본인이 직접 등록하는 것은 운영 정책에 위배됩니다.</li>
+                <li>매칭 <b>불발 시 비용은 일절 발생하지 않습니다.</b> 양측 수락 시에만 매칭비가 안내됩니다.</li>
+                <li>개인정보는 매칭 목적 외 <b>절대 사용되지 않으며</b>, 매칭 종료 후 안전하게 파기됩니다.</li>
+            </ul>
+        </div>
+
+        <!-- CTA 버튼 -->
+        <div class="cta-bottom">
+            <a href="https://hanheumyang-web.github.io/linker/" class="cta-btn cta-primary">피드 보러가기</a>
+            <a href="https://hanheumyang-web.github.io/linker/upload.html" class="cta-btn cta-secondary">친구 등록하기</a>
         </div>
 
         <div class="footer">
-            © 2026 LINKER Private Match.
+            © 2026 LINKER Private Match.<br>
+            지인 기반 프라이빗 매칭 서비스
         </div>
     </div>
 
+    <!-- Toast 알림 -->
+    <div class="toast" id="toast"></div>
+
     <script>
-        // 🚀 탭 전환 로직
         function switchTab(tabId) {
-            // 모든 버튼과 콘텐츠 초기화
-            document.getElementById('btn-host').classList.remove('active');
-            document.getElementById('btn-guest').classList.remove('active');
-            document.getElementById('content-host').classList.remove('active');
-            document.getElementById('content-guest').classList.remove('active');
-            
-            // 선택한 탭 활성화
-            document.getElementById('btn-' + tabId).classList.add('active');
-            document.getElementById('content-' + tabId).classList.add('active');
-        }
-
-        // 주소 복사 기능
-        function copyText(id) {
-            const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("링크가 복사되었습니다!");
+            document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+                b.classList.toggle('active', (tabId === 'host' && i === 0) || (tabId === 'guest' && i === 1));
             });
+            document.getElementById('content-host').classList.toggle('active', tabId === 'host');
+            document.getElementById('content-guest').classList.toggle('active', tabId === 'guest');
         }
 
-        // 모바일 네이티브 공유 기능
-        function shareLink(id, title, text) {
-            const url = document.getElementById(id).innerText;
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2000);
+        }
+
+        function copyUrl(id) {
+            var text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(function() { showToast('링크가 복사되었습니다'); });
+        }
+
+        function shareUrl(id, title, text) {
+            var url = document.getElementById(id).innerText;
             if (navigator.share) {
-                navigator.share({
-                    title: title,
-                    text: text,
-                    url: url
-                }).catch(console.error);
+                navigator.share({ title: title, text: text, url: url }).catch(function(){});
             } else {
-                copyText(id);
-                alert("현재 브라우저에서는 공유하기 기능을 지원하지 않아 링크가 복사되었습니다.");
+                copyUrl(id);
             }
+        }
+
+        function toggleFaq(el) {
+            el.parentElement.classList.toggle('open');
         }
     </script>
 </body>
