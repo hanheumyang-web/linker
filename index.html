@@ -22,11 +22,15 @@
         .nickname { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
         .referrer { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
         
-        .photo-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin-bottom: 16px; padding-bottom: 8px; cursor: grab; position: relative; }
+        .photo-wrapper { position: relative; margin-bottom: 8px; }
+        .photo-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin-bottom: 8px; padding-bottom: 0; cursor: grab; scroll-behavior: smooth; }
         .photo-slider:active { cursor: grabbing; }
-        .photo-slider::-webkit-scrollbar { height: 6px; }
-        .photo-slider::-webkit-scrollbar-thumb { background: #E5E5EA; border-radius: 3px; }
+        .photo-slider::-webkit-scrollbar { display: none; }
         .photo-slide { flex: 0 0 100%; height: 320px; object-fit: cover; border-radius: 12px; scroll-snap-align: center; pointer-events: none; }
+        .photo-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.85); border: none; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5; transition: opacity 0.2s; color: #333; }
+        .photo-arrow:hover { background: white; }
+        .photo-arrow.left { left: 10px; }
+        .photo-arrow.right { right: 10px; }
         .photo-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 16px; }
         .photo-dot { width: 7px; height: 7px; border-radius: 50%; background: #D1D1D6; transition: background 0.2s; }
         .photo-dot.active { background: var(--accent); }
@@ -114,10 +118,16 @@
                         return u.trim() !== '' && u.trim().startsWith('http');
                     });
                     if (urls.length > 0) {
-                        photoHtml = '<div class="photo-slider">';
+                        photoHtml = '<div class="photo-wrapper">';
+                        photoHtml += '<div class="photo-slider">';
                         urls.forEach(function(url) {
                             photoHtml += '<img src="' + url.trim() + '" class="photo-slide" onerror="this.parentElement.innerHTML=\'<div class=image-placeholder>사진을 불러올 수 없습니다.</div>\'">';
                         });
+                        photoHtml += '</div>';
+                        if (urls.length > 1) {
+                            photoHtml += '<button class="photo-arrow left" onclick="slidePhoto(this,-1)">‹</button>';
+                            photoHtml += '<button class="photo-arrow right" onclick="slidePhoto(this,1)">›</button>';
+                        }
                         photoHtml += '</div>';
                         if (urls.length > 1) {
                             photoHtml += '<div class="photo-dots">';
@@ -147,24 +157,14 @@
                 feed.innerHTML += cardHtml;
             });
 
-            // PC 드래그 스크롤 + 도트 인디케이터 연동
+            // 도트 인디케이터 연동
             document.querySelectorAll('.photo-slider').forEach(function(slider) {
-                var isDown = false, startX, scrollLeft;
-                slider.addEventListener('mousedown', function(e) { isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
-                slider.addEventListener('mouseleave', function() { isDown = false; });
-                slider.addEventListener('mouseup', function() { isDown = false; });
-                slider.addEventListener('mousemove', function(e) {
-                    if (!isDown) return;
-                    e.preventDefault();
-                    slider.scrollLeft = scrollLeft - (e.pageX - slider.offsetLeft - startX);
-                });
-
-                // 도트 업데이트
-                var dots = slider.nextElementSibling;
-                if (dots && dots.classList.contains('photo-dots')) {
+                var wrapper = slider.closest('.photo-wrapper');
+                var card = wrapper ? wrapper.closest('.feed-card') : null;
+                var dots = card ? card.querySelector('.photo-dots') : null;
+                if (dots) {
                     slider.addEventListener('scroll', function() {
-                        var slideWidth = slider.offsetWidth;
-                        var idx = Math.round(slider.scrollLeft / slideWidth);
+                        var idx = Math.round(slider.scrollLeft / slider.offsetWidth);
                         dots.querySelectorAll('.photo-dot').forEach(function(d, i) {
                             d.classList.toggle('active', i === idx);
                         });
@@ -172,6 +172,12 @@
                 }
             });
         }
+
+        window.slidePhoto = function(btn, dir) {
+            var wrapper = btn.closest('.photo-wrapper');
+            var slider = wrapper.querySelector('.photo-slider');
+            slider.scrollBy({ left: slider.offsetWidth * dir, behavior: 'smooth' });
+        };
 
         window.openModal = function(targetNickname) {
             currentTargetNickname = targetNickname;
