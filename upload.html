@@ -185,7 +185,7 @@
                 fetch('https://api.telegram.org/bot8714445208:AAHj1eum2VjHr4tjkBKnnAqMxLXQd4zhpr4/sendMessage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: '8719885101', text: '📋 새 프로필 등록!\n\n닉네임: @' + nickname + '\n나이: ' + document.getElementById('age').value + '세\n직장: ' + document.getElementById('job').value + '\n주선자: ' + document.getElementById('referrerName').value })
+                    body: JSON.stringify({ chat_id: '8719885101', text: '📋 새 프로필 등록!\n\n닉네임: @' + nickname + '\n나이: ' + age + '세\n직장: ' + job + '\n주선자: ' + referrerName })
                 }).catch(function(){});
 
                 alert("✅ 프로필 등록 완료!\n\n부여된 익명 닉네임: @" + nickname);
