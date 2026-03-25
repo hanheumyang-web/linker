@@ -74,7 +74,15 @@
         var mySupabaseUrl = 'https://txabwcjvexyalallvndi.supabase.co';
         var mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
         var myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
-        
+
+        function sendTelegram(msg) {
+            fetch('https://api.telegram.org/bot8714445208:AAHj1eum2VjHr4tjkBKnnAqMxLXQd4zhpr4/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: '8719885101', text: msg })
+            });
+        }
+
         var currentTargetNickname = "";
 
         async function loadProfiles() {
@@ -174,6 +182,8 @@
                 btn.disabled = false;
                 btn.innerText = "접수 및 카톡 연결";
             } else {
+                sendTelegram("🔔 새 매칭 신청!\n\n접수번호: " + ticketNumber + "\n신청자: " + myName.trim() + "\n대상: @" + currentTargetNickname + "\n주선자: " + refName.trim());
+
                 alert("✅ 매칭 신청 완료!\n\n접수번호: " + ticketNumber + "\n\n운영자 확인 후 빠르게 안내드리겠습니다.\n잠시만 기다려주세요!");
 
                 closeModal();
