@@ -54,6 +54,24 @@
                 <input type="number" id="age" placeholder="예: 28">
             </div>
             <div class="input-row">
+                <span class="input-label">키</span>
+                <select id="height">
+                    <option value="" disabled selected>선택</option>
+                    <script>for(var h=140;h<=200;h++){document.write('<option value="'+h+'">'+h+'cm</option>')}</script>
+                </select>
+            </div>
+            <div class="input-row">
+                <span class="input-label">MBTI</span>
+                <select id="mbti">
+                    <option value="" disabled selected>선택</option>
+                    <option>ISTJ</option><option>ISFJ</option><option>INFJ</option><option>INTJ</option>
+                    <option>ISTP</option><option>ISFP</option><option>INFP</option><option>INTP</option>
+                    <option>ESTP</option><option>ESFP</option><option>ENFP</option><option>ENTP</option>
+                    <option>ESTJ</option><option>ESFJ</option><option>ENFJ</option><option>ENTJ</option>
+                    <option value="모름">모름</option>
+                </select>
+            </div>
+            <div class="input-row">
                 <span class="input-label">직장</span>
                 <input type="text" id="job" placeholder="예: IT 대기업 기획자">
             </div>
@@ -126,6 +144,8 @@
             
             var gender = document.getElementById('gender').value;
             var age = document.getElementById('age').value;
+            var height = document.getElementById('height').value;
+            var mbti = document.getElementById('mbti').value;
             var job = document.getElementById('job').value;
             var location = document.getElementById('location').value;
             var goal = document.getElementById('goal').value;
@@ -197,6 +217,8 @@
                 nickname: nickname,
                 gender: gender,
                 age: parseInt(age),
+                height: height ? parseInt(height) : null,
+                mbti: mbti || null,
                 job: job,
                 location: location,
                 goal: goal,
