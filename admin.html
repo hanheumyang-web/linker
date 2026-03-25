@@ -272,6 +272,13 @@
             }
         };
 
+        window.deleteRequest = async function(requestId, ticketNum) {
+            if (!confirm(ticketNum + " 매칭 신청을 삭제할까요? 되돌릴 수 없습니다.")) return;
+            var { error } = await myDb.from('match_requests').delete().eq('id', requestId);
+            if (error) { alert("삭제 실패: " + error.message); }
+            else { alert(ticketNum + " 삭제 완료"); loadRequests(); }
+        };
+
         window.copyOfferLink = function(token) {
             var link = getBaseUrl() + 'offer.html?token=' + token;
             var tempInput = document.createElement("textarea");
@@ -309,21 +316,27 @@
                 var statusLabel = { pending: '대기중', approved: '링크 발송됨', accepted: '상대방 수락', rejected: '거절됨' };
                 var statusClass = { pending: 'status-pending', approved: 'status-approved', accepted: 'status-accepted', rejected: 'status-rejected' };
 
+                var deleteBtn = '<button class="action-btn btn-reject" onclick="deleteRequest(\'' + req.id + '\', \'' + ticketNum + '\')">삭제</button>';
                 var actionHtml = '';
                 if (status === 'pending') {
                     actionHtml = '<div class="action-bar">' +
+                        deleteBtn +
                         '<button class="action-btn btn-reject" onclick="rejectRequest(\'' + req.id + '\', \'' + ticketNum + '\')">거절</button>' +
                         '<button class="action-btn btn-approve" onclick="approveRequest(\'' + req.id + '\', \'' + ticketNum + '\')">수락 + 링크 생성</button>' +
                         '</div>';
                 } else if (status === 'approved' && req.offer_token) {
                     actionHtml = '<div class="action-bar">' +
+                        deleteBtn +
                         '<button class="action-btn btn-copy-link" onclick="copyOfferLink(\'' + req.offer_token + '\')">offer 링크 다시 복사</button>' +
                         '</div>' +
                         '<div class="offer-link-box">' + getBaseUrl() + 'offer.html?token=' + req.offer_token + '</div>';
                 } else if (status === 'accepted') {
                     actionHtml = '<div class="action-bar">' +
-                        '<div style="width:100%; text-align:center; color:#0CA678; font-weight:700; font-size:15px;">양측 수락 완료 — 결제 안내 진행</div>' +
+                        deleteBtn +
+                        '<div style="flex:1; text-align:center; color:#0CA678; font-weight:700; font-size:15px;">양측 수락 완료 — 결제 안내 진행</div>' +
                         '</div>';
+                } else {
+                    actionHtml = '<div class="action-bar">' + deleteBtn + '</div>';
                 }
 
                 var card = '<div class="card" data-status="' + status + '">' +
