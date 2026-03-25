@@ -28,12 +28,11 @@
         .hero p { font-size: 15px; color: var(--sub); line-height: 1.6; position: relative; z-index: 1; }
 
         /* ===== 특징 카드 (가로 스크롤) ===== */
-        .features-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 0 20px 20px; margin: 0 -20px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
-        .features-scroll::-webkit-scrollbar { display: none; }
-        .feat-card { flex: 0 0 260px; background: var(--card); border-radius: 20px; padding: 28px 24px; scroll-snap-align: start; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
-        .feat-emoji { font-size: 40px; margin-bottom: 14px; }
-        .feat-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: var(--main); }
-        .feat-card p { font-size: 13px; color: var(--sub); line-height: 1.55; word-break: keep-all; }
+        .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .feat-card { background: var(--card); border-radius: 20px; padding: 24px 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+        .feat-emoji { font-size: 32px; margin-bottom: 12px; }
+        .feat-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--main); }
+        .feat-card p { font-size: 12px; color: var(--sub); line-height: 1.55; word-break: keep-all; }
 
         /* ===== 숫자 통계 배너 ===== */
         .stats-bar { display: flex; justify-content: space-around; background: var(--card); border-radius: 16px; padding: 20px 10px; margin: 20px 0 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
@@ -135,7 +134,7 @@
         </div>
 
         <!-- 특징 카드 가로 스크롤 -->
-        <div class="features-scroll">
+        <div class="features-grid">
             <div class="feat-card">
                 <div class="feat-emoji">🤝</div>
                 <h3>100% 지인 추천제</h3>
