@@ -112,19 +112,22 @@
                 '<div class="hero-desc">아래 신청자의 정보를 확인하고<br>수락 여부를 결정해주세요.</div>' +
                 '</div>';
 
-            // 타겟 본인 프로필 사진 (신청 받은 쪽이 누구인지 확인용)
+            // 타겟 본인 프로필 (신청 받은 사람이 본인 확인용)
             if (targetProfile) {
                 html += '<div class="card">' +
-                    '<div class="card-title">내 프로필 (' + req.ticket_number + ')</div>' +
-                    '<div class="info-row"><span class="info-label">닉네임</span> <span class="info-value">@' + targetProfile.nickname + '</span></div>' +
+                    '<div class="card-title">나에게 온 매칭 요청 (' + req.ticket_number + ')</div>' +
+                    '<div class="info-row"><span class="info-label">내 닉네임</span> <span class="info-value">@' + targetProfile.nickname + '</span></div>' +
                     '<div class="info-row"><span class="info-label">나이</span> <span class="info-value">' + targetProfile.age + '세</span></div>' +
+                    '<div class="info-row"><span class="info-label">직장</span> <span class="info-value">' + (targetProfile.job || '-') + '</span></div>' +
+                    '<div class="info-row"><span class="info-label">위치</span> <span class="info-value">' + (targetProfile.location || '-') + '</span></div>' +
                     '</div>';
             }
 
             // 신청자 정보
             html += '<div class="card">' +
-                '<div class="card-title">신청자 정보</div>' +
+                '<div class="card-title">나에게 관심을 보낸 사람</div>' +
                 '<div class="info-row"><span class="info-label">이름</span> <span class="info-value">' + (req.requester_my_name || '비공개') + '</span></div>' +
+                '<div class="info-row"><span class="info-label">연락처</span> <span class="info-value">' + (req.requester_my_contact || '비공개') + '</span></div>' +
                 '<div class="info-row"><span class="info-label">주선자</span> <span class="info-value">' + (req.requester_referrer_name || '비공개') + '</span></div>' +
                 '</div>';
 
