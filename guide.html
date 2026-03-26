@@ -79,6 +79,10 @@
         .pricing-card p { font-size: 14px; opacity: 0.85; line-height: 1.6; word-break: keep-all; }
         .pricing-card .price-amount { font-size: 36px; font-weight: 800; margin: 16px 0 4px; }
         .pricing-card .price-note { font-size: 13px; opacity: 0.7; }
+        .pricing-card .price-split { margin: 16px 0 4px; display: flex; flex-direction: column; gap: 10px; }
+        .pricing-card .price-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px 16px; }
+        .pricing-card .price-role { font-size: 14px; font-weight: 600; opacity: 0.9; }
+        .pricing-card .price-val { font-size: 24px; font-weight: 800; }
 
         /* ===== 링크 섹션 ===== */
         .links-section { background: var(--card); border-radius: 20px; padding: 28px 20px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
@@ -184,7 +188,7 @@
                 </div>
             </div>
             <div class="pain-mini-footer">
-                LINKER는 <b>3만원</b>, 성사 시에만 · 불발 시 무료
+                신청자 <b>3만원</b> + 상대방 <b>1만원</b>, 성사 시에만 · 불발 시 무료
             </div>
         </div>
 
@@ -314,7 +318,16 @@
             <div class="price-badge">MATCHING FEE</div>
             <h3>매칭비 안내</h3>
             <p>양측 모두 수락한 경우에만 발생하며,<br>무분별한 신청을 방지하기 위한 최소한의 허들입니다.</p>
-            <div class="price-amount">30,000원</div>
+            <div class="price-split">
+                <div class="price-row">
+                    <span class="price-role">신청자</span>
+                    <span class="price-val">30,000원</span>
+                </div>
+                <div class="price-row">
+                    <span class="price-role">상대방</span>
+                    <span class="price-val">10,000원</span>
+                </div>
+            </div>
             <div class="price-note">매칭 성사 시 1회 / 불발 시 무료</div>
         </div>
 
