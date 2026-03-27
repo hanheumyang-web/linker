@@ -65,9 +65,53 @@
         .page-arrow { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--border); background: white; font-size: 18px; font-weight: 600; cursor: pointer; color: var(--text-main); font-family: inherit; display: flex; align-items: center; justify-content: center; }
         .page-arrow:disabled { opacity: 0.3; cursor: default; }
         .app-container { padding-bottom: 80px; }
+
+        /* ===== 비밀번호 화면 ===== */
+        #lockScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #F2F2F7; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Pretendard', -apple-system, sans-serif; }
+        .lock-logo { font-size: 48px; margin-bottom: 16px; }
+        .lock-title { font-size: 22px; font-weight: 800; color: #1D1D1F; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .lock-sub { font-size: 14px; color: #86868B; margin-bottom: 40px; }
+        .lock-dots { display: flex; gap: 18px; margin-bottom: 40px; }
+        .lock-dot { width: 16px; height: 16px; border-radius: 50%; background: #E5E5EA; transition: background 0.15s; }
+        .lock-dot.filled { background: #007AFF; }
+        .lock-dot.error { background: #FF3B30; }
+        .lock-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 260px; }
+        .pad-btn { height: 72px; border-radius: 50%; background: white; border: none; font-size: 24px; font-weight: 600; color: #1D1D1F; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-family: inherit; transition: background 0.1s; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center; }
+        .pad-btn:active { background: #E5E5EA; }
+        .pad-btn.empty { background: transparent; box-shadow: none; cursor: default; }
+        .pad-btn.del { font-size: 20px; background: transparent; box-shadow: none; color: #86868B; }
+        .pad-btn.del:active { background: #E5E5EA; border-radius: 50%; }
+        .lock-error { font-size: 14px; color: #FF3B30; margin-top: -28px; margin-bottom: 20px; height: 20px; font-weight: 600; }
     </style>
 </head>
 <body>
+    <!-- 비밀번호 화면 -->
+    <div id="lockScreen">
+        <div class="lock-logo">🔒</div>
+        <div class="lock-title">LINKER</div>
+        <div class="lock-sub">비밀번호를 입력해주세요</div>
+        <div class="lock-dots" id="lockDots">
+            <div class="lock-dot" id="d0"></div>
+            <div class="lock-dot" id="d1"></div>
+            <div class="lock-dot" id="d2"></div>
+            <div class="lock-dot" id="d3"></div>
+        </div>
+        <div class="lock-error" id="lockError"></div>
+        <div class="lock-pad">
+            <button class="pad-btn" onclick="padInput('1')">1</button>
+            <button class="pad-btn" onclick="padInput('2')">2</button>
+            <button class="pad-btn" onclick="padInput('3')">3</button>
+            <button class="pad-btn" onclick="padInput('4')">4</button>
+            <button class="pad-btn" onclick="padInput('5')">5</button>
+            <button class="pad-btn" onclick="padInput('6')">6</button>
+            <button class="pad-btn" onclick="padInput('7')">7</button>
+            <button class="pad-btn" onclick="padInput('8')">8</button>
+            <button class="pad-btn" onclick="padInput('9')">9</button>
+            <button class="pad-btn empty"></button>
+            <button class="pad-btn" onclick="padInput('0')">0</button>
+            <button class="pad-btn del" onclick="padDelete()">⌫</button>
+        </div>
+    </div>
     <div class="app-container">
         <div class="header">
             <div class="header-title">LINKER</div>
@@ -98,6 +142,53 @@
     </div>
 
     <script>
+        // ===== 비밀번호 =====
+        var PASS = '6669';
+        var padValue = '';
+
+        function padInput(n) {
+            if (padValue.length >= 4) return;
+            padValue += n;
+            updateDots();
+            if (padValue.length === 4) checkPass();
+        }
+
+        function padDelete() {
+            padValue = padValue.slice(0, -1);
+            updateDots();
+            document.getElementById('lockError').textContent = '';
+            document.querySelectorAll('.lock-dot').forEach(function(d) { d.classList.remove('error'); });
+        }
+
+        function updateDots() {
+            for (var i = 0; i < 4; i++) {
+                document.getElementById('d' + i).classList.toggle('filled', i < padValue.length);
+            }
+        }
+
+        function checkPass() {
+            if (padValue === PASS) {
+                sessionStorage.setItem('linker_auth', '1');
+                document.getElementById('lockScreen').style.display = 'none';
+            } else {
+                document.querySelectorAll('.lock-dot').forEach(function(d) { d.classList.add('error'); d.classList.remove('filled'); });
+                document.getElementById('lockError').textContent = '비밀번호가 올바르지 않습니다';
+                setTimeout(function() {
+                    padValue = '';
+                    updateDots();
+                    document.querySelectorAll('.lock-dot').forEach(function(d) { d.classList.remove('error'); });
+                    document.getElementById('lockError').textContent = '';
+                }, 800);
+            }
+        }
+
+        (function() {
+            if (sessionStorage.getItem('linker_auth') === '1') {
+                document.getElementById('lockScreen').style.display = 'none';
+            }
+        })();
+        // ====================
+
         var mySupabaseUrl = 'https://txabwcjvexyalallvndi.supabase.co';
         var mySupabaseKey = 'sb_publishable_FI_UmoSSh1AWGZo2I5Bkjw_5J01mYfP';
         var myDb = window.supabase.createClient(mySupabaseUrl, mySupabaseKey);
