@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LINKER - 한다리 건너, 프라이빗 소개팅</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #F2F4F6; --card: #FFFFFF; --main: #191F28; --sub: #4E5968; --light: #8B95A1;
@@ -15,12 +17,13 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--main); line-height: 1.6; letter-spacing: -0.3px; -webkit-font-smoothing: antialiased; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
         .container { max-width: 440px; margin: 0 auto; padding: 0 20px 120px; }
 
         /* ===== HERO ===== */
         .hero { text-align: center; padding: 56px 0 44px; position: relative; overflow: hidden; }
         .hero::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 360px; height: 360px; background: radial-gradient(circle, rgba(49,130,246,0.06) 0%, transparent 70%); border-radius: 50%; z-index: 0; }
-        .hero-badge { display: inline-block; background: var(--main); color: white; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; letter-spacing: 1.5px; position: relative; z-index: 1; text-transform: uppercase; }
+        .hero-badge { display: inline-block; background: var(--main); color: white; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; letter-spacing: 2px; position: relative; z-index: 1; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
         .hero h1 { font-size: 28px; font-weight: 800; line-height: 1.35; letter-spacing: -1px; margin-bottom: 16px; position: relative; z-index: 1; word-break: keep-all; }
         .hero h1 span { color: var(--accent); }
         .hero p { font-size: 15px; color: var(--sub); line-height: 1.7; position: relative; z-index: 1; word-break: keep-all; }
@@ -43,16 +46,16 @@
         .pain-section { margin-bottom: 28px; }
         .pain-card { background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.03); }
         .pain-header { background: #FFF0F6; padding: 16px 24px; }
-        .pain-header-badge { font-size: 11px; font-weight: 700; color: var(--pink); letter-spacing: 0.5px; }
+        .pain-header-badge { font-size: 11px; font-weight: 700; color: var(--pink); letter-spacing: 1.5px; font-family: 'JetBrains Mono', monospace; }
         .pain-header h3 { font-size: 17px; font-weight: 800; color: var(--main); margin-top: 4px; }
         .pain-compare { display: flex; }
         .pain-col { flex: 1; padding: 20px 16px; text-align: center; }
         .pain-col.bad { background: #FAFAFA; }
         .pain-col.good { background: white; }
-        .pain-col-label { font-size: 11px; font-weight: 700; color: var(--light); margin-bottom: 14px; letter-spacing: 0.5px; }
+        .pain-col-label { font-size: 11px; font-weight: 700; color: var(--light); margin-bottom: 14px; letter-spacing: 0.5px; font-family: 'JetBrains Mono', monospace; }
         .pain-col.good .pain-col-label { color: var(--accent); }
         .pain-stat { margin-bottom: 16px; }
-        .pain-stat-num { font-size: 20px; font-weight: 800; }
+        .pain-stat-num { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
         .pain-col.bad .pain-stat-num { color: var(--pink); }
         .pain-col.good .pain-stat-num { color: var(--accent); }
         .pain-stat-desc { font-size: 11px; color: var(--sub); margin-top: 3px; line-height: 1.4; word-break: keep-all; }
@@ -65,12 +68,12 @@
         .section-sub { font-size: 14px; color: var(--sub); margin-bottom: 24px; }
         .flow-step { display: flex; gap: 16px; position: relative; }
         .flow-track { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 48px; }
-        .flow-num { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: white; background: var(--accent); flex-shrink: 0; }
+        .flow-num { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: white; background: var(--accent); flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
         .flow-line { flex: 1; width: 2px; background: #B8D4F8; margin: 6px 0; border-radius: 1px; }
         .flow-card { flex: 1; background: var(--card); border-radius: 16px; padding: 22px 20px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); border-left: 3px solid var(--accent); }
         .flow-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
         .flow-card p { font-size: 13px; color: var(--sub); line-height: 1.65; word-break: keep-all; }
-        .flow-card .flow-tag { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-top: 10px; }
+        .flow-card .flow-tag { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; margin-top: 10px; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.3px; }
 
         /* ===== 신뢰 시그널 ===== */
         .trust-section { margin-bottom: 28px; }
@@ -78,17 +81,17 @@
         .trust-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
         .trust-item:last-child { border-bottom: none; padding-bottom: 0; }
         .trust-item:first-child { padding-top: 0; }
-        .trust-check { width: 28px; height: 28px; background: var(--green-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .trust-check { width: 28px; height: 28px; background: var(--green-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; color: var(--green); font-weight: 700; }
         .trust-text { font-size: 14px; color: var(--main); line-height: 1.55; word-break: keep-all; }
         .trust-text b { color: var(--accent); }
 
         /* ===== 매칭비 카드 ===== */
         .pricing-card { background: linear-gradient(135deg, #3182F6 0%, #1B6CF2 100%); border-radius: 20px; padding: 32px 24px; color: white; margin-bottom: 28px; position: relative; overflow: hidden; }
         .pricing-card::after { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; }
-        .pricing-card .price-badge { display: inline-block; background: rgba(255,255,255,0.2); font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 8px; margin-bottom: 14px; letter-spacing: 0.5px; }
+        .pricing-card .price-badge { display: inline-block; background: rgba(255,255,255,0.2); font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 8px; margin-bottom: 14px; letter-spacing: 1.5px; font-family: 'JetBrains Mono', monospace; }
         .pricing-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
         .pricing-card p { font-size: 14px; opacity: 0.85; line-height: 1.6; word-break: keep-all; }
-        .pricing-card .price-amount { font-size: 36px; font-weight: 800; margin: 16px 0 4px; }
+        .pricing-card .price-amount { font-size: 36px; font-weight: 800; margin: 16px 0 4px; font-family: 'JetBrains Mono', monospace; }
         .pricing-card .price-note { font-size: 13px; opacity: 0.7; }
 
         /* ===== FAQ ===== */
@@ -114,7 +117,7 @@
         .cta-primary { background: var(--accent); color: white; }
         .cta-secondary { background: var(--bg); color: var(--main); border: 1px solid var(--border); }
 
-        .footer { text-align: center; font-size: 12px; color: var(--light); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .footer { text-align: center; font-size: 11px; color: var(--light); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
 
         .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #333D4B; color: white; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 999; pointer-events: none; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
