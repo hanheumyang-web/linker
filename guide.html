@@ -3,335 +3,708 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKER - 한다리 건너, 프라이빗 소개팅</title>
+    <title>LINKER — Private Matching</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Roboto+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #F2F4F6; --card: #FFFFFF; --main: #191F28; --sub: #4E5968; --light: #8B95A1;
-            --accent: #3182F6; --accent-light: #E8F3FF; --border: #E5E5EA;
-            --green: #20C997; --green-light: #E6FCF5;
-            --orange: #F08C00; --orange-light: #FFF4E6;
-            --pink: #E64980; --pink-light: #FFF0F6;
+            --bg: #FFFFFF;
+            --bg-alt: #F5F5F5;
+            --text: #1A1A1A;
+            --text-sub: #6B6B6B;
+            --text-muted: #999999;
+            --accent: #3182F6;
+            --border: rgba(0,0,0,0.08);
+            --card-radius: 16px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--main); line-height: 1.6; letter-spacing: -0.3px; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+        .en { font-family: 'Roboto Condensed', 'JetBrains Mono', sans-serif; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .container { max-width: 440px; margin: 0 auto; padding: 0 20px 120px; }
+
+        .container { max-width: 480px; margin: 0 auto; padding: 0 24px 140px; }
+
+        /* ===== NAV ===== */
+        .nav {
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0;
+        }
+        .nav-logo {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: var(--text);
+        }
+        .nav-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
 
         /* ===== HERO ===== */
-        .hero { text-align: center; padding: 56px 0 44px; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 360px; height: 360px; background: radial-gradient(circle, rgba(49,130,246,0.06) 0%, transparent 70%); border-radius: 50%; z-index: 0; }
-        .hero-badge { display: inline-block; background: var(--main); color: white; font-size: 11px; font-weight: 700; padding: 6px 16px; border-radius: 20px; margin-bottom: 24px; letter-spacing: 2px; position: relative; z-index: 1; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
-        .hero h1 { font-size: 28px; font-weight: 800; line-height: 1.35; letter-spacing: -1px; margin-bottom: 16px; position: relative; z-index: 1; word-break: keep-all; }
-        .hero h1 span { color: var(--accent); }
-        .hero p { font-size: 15px; color: var(--sub); line-height: 1.7; position: relative; z-index: 1; word-break: keep-all; }
-        .hero-cta { display: flex; gap: 10px; justify-content: center; margin-top: 28px; position: relative; z-index: 1; }
-        .hero-cta a { padding: 14px 28px; border-radius: 14px; font-size: 14px; font-weight: 700; text-decoration: none; font-family: inherit; }
-        .hero-cta .btn-primary { background: var(--accent); color: white; }
-        .hero-cta .btn-ghost { background: white; color: var(--main); border: 1px solid var(--border); }
+        .hero {
+            padding: 64px 0 56px;
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-family: 'Pretendard', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+            word-break: keep-all;
+        }
+        .hero p {
+            font-size: 16px;
+            color: var(--text-sub);
+            line-height: 1.7;
+            word-break: keep-all;
+            max-width: 360px;
+        }
+        .hero-cta {
+            display: flex;
+            gap: 12px;
+            margin-top: 36px;
+        }
+        .btn-fill {
+            display: inline-block;
+            background: var(--text);
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 48px;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
+        }
+        .btn-fill:hover { opacity: 0.85; }
+        .btn-outline {
+            display: inline-block;
+            background: transparent;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 48px;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(0,0,0,0.15);
+            transition: background 0.2s;
+        }
+        .btn-outline:hover { background: var(--bg-alt); }
 
-        /* ===== 핵심 가치 3카드 ===== */
-        .value-section { margin-bottom: 28px; }
-        .value-card { background: var(--card); border-radius: 20px; padding: 28px 24px; margin-bottom: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.03); display: flex; gap: 18px; align-items: flex-start; }
-        .value-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
-        .value-icon.blue { background: var(--accent-light); }
-        .value-icon.green { background: var(--green-light); }
-        .value-icon.orange { background: var(--orange-light); }
-        .value-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-        .value-body p { font-size: 13px; color: var(--sub); line-height: 1.6; word-break: keep-all; }
+        /* ===== SECTION COMMON ===== */
+        .section {
+            padding: 56px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .section:last-of-type { border-bottom: none; }
+        .section-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            word-break: keep-all;
+        }
+        .section-desc {
+            font-size: 15px;
+            color: var(--text-sub);
+            line-height: 1.65;
+            word-break: keep-all;
+            margin-bottom: 32px;
+        }
 
-        /* ===== 페인포인트 비교 ===== */
-        .pain-section { margin-bottom: 28px; }
-        .pain-card { background: var(--card); border-radius: 20px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.03); }
-        .pain-header { background: #FFF0F6; padding: 16px 24px; }
-        .pain-header-badge { font-size: 11px; font-weight: 700; color: var(--pink); letter-spacing: 1.5px; font-family: 'JetBrains Mono', monospace; }
-        .pain-header h3 { font-size: 17px; font-weight: 800; color: var(--main); margin-top: 4px; }
-        .pain-compare { display: flex; }
-        .pain-col { flex: 1; padding: 20px 16px; text-align: center; }
-        .pain-col.bad { background: #FAFAFA; }
-        .pain-col.good { background: white; }
-        .pain-col-label { font-size: 11px; font-weight: 700; color: var(--light); margin-bottom: 14px; letter-spacing: 0.5px; font-family: 'JetBrains Mono', monospace; }
-        .pain-col.good .pain-col-label { color: var(--accent); }
-        .pain-stat { margin-bottom: 16px; }
-        .pain-stat-num { font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
-        .pain-col.bad .pain-stat-num { color: var(--pink); }
-        .pain-col.good .pain-stat-num { color: var(--accent); }
-        .pain-stat-desc { font-size: 11px; color: var(--sub); margin-top: 3px; line-height: 1.4; word-break: keep-all; }
-        .pain-divider { width: 1px; background: var(--border); flex-shrink: 0; }
-        .pain-bottom { padding: 14px 24px; background: var(--accent-light); text-align: center; font-size: 13px; color: var(--accent); font-weight: 600; }
+        /* ===== VALUE CARDS ===== */
+        .value-list { display: flex; flex-direction: column; gap: 16px; }
+        .value-item {
+            background: var(--bg-alt);
+            border-radius: var(--card-radius);
+            padding: 28px 24px;
+        }
+        .value-num {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: rgba(0,0,0,0.06);
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+        .value-item h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+        .value-item p {
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            word-break: keep-all;
+        }
 
-        /* ===== 이용 흐름 ===== */
-        .flow-section { margin-bottom: 28px; }
-        .section-header { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
-        .section-sub { font-size: 14px; color: var(--sub); margin-bottom: 24px; }
-        .flow-step { display: flex; gap: 16px; position: relative; }
-        .flow-track { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 48px; }
-        .flow-num { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: white; background: var(--accent); flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
-        .flow-line { flex: 1; width: 2px; background: #B8D4F8; margin: 6px 0; border-radius: 1px; }
-        .flow-card { flex: 1; background: var(--card); border-radius: 16px; padding: 22px 20px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); border-left: 3px solid var(--accent); }
-        .flow-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-        .flow-card p { font-size: 13px; color: var(--sub); line-height: 1.65; word-break: keep-all; }
-        .flow-card .flow-tag { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; margin-top: 10px; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.3px; }
+        /* ===== COMPARISON ===== */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .compare-col {
+            border-radius: var(--card-radius);
+            padding: 24px 18px;
+        }
+        .compare-col.old { background: var(--bg-alt); }
+        .compare-col.new { background: var(--text); color: white; }
+        .compare-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .compare-col.new .compare-label { opacity: 0.6; }
+        .compare-stat { margin-bottom: 20px; }
+        .compare-stat:last-child { margin-bottom: 0; }
+        .compare-stat-num {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .compare-stat-desc {
+            font-size: 12px;
+            margin-top: 4px;
+            line-height: 1.4;
+            word-break: keep-all;
+        }
+        .compare-col.old .compare-stat-desc { color: var(--text-sub); }
+        .compare-col.new .compare-stat-desc { opacity: 0.65; }
+        .compare-bottom {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            letter-spacing: -0.2px;
+        }
 
-        /* ===== 신뢰 시그널 ===== */
-        .trust-section { margin-bottom: 28px; }
-        .trust-card { background: var(--card); border-radius: 20px; padding: 28px 24px; box-shadow: 0 2px 16px rgba(0,0,0,0.03); }
-        .trust-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
-        .trust-item:last-child { border-bottom: none; padding-bottom: 0; }
-        .trust-item:first-child { padding-top: 0; }
-        .trust-check { width: 28px; height: 28px; background: var(--green-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; color: var(--green); font-weight: 700; }
-        .trust-text { font-size: 14px; color: var(--main); line-height: 1.55; word-break: keep-all; }
-        .trust-text b { color: var(--accent); }
+        /* ===== STEPS ===== */
+        .steps { display: flex; flex-direction: column; gap: 0; }
+        .step-item {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+        .step-track {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            width: 32px;
+        }
+        .step-num {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--text);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .step-line {
+            flex: 1;
+            width: 1px;
+            background: rgba(0,0,0,0.1);
+            margin: 8px 0;
+        }
+        .step-body {
+            flex: 1;
+            padding-bottom: 36px;
+        }
+        .step-item:last-child .step-body { padding-bottom: 0; }
+        .step-body h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+        .step-body p {
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.65;
+            word-break: keep-all;
+        }
+        .step-tag {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--accent);
+            background: #EBF3FE;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-top: 12px;
+        }
 
-        /* ===== 매칭비 카드 ===== */
-        .pricing-card { background: linear-gradient(135deg, #3182F6 0%, #1B6CF2 100%); border-radius: 20px; padding: 32px 24px; color: white; margin-bottom: 28px; position: relative; overflow: hidden; }
-        .pricing-card::after { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; }
-        .pricing-card .price-badge { display: inline-block; background: rgba(255,255,255,0.2); font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 8px; margin-bottom: 14px; letter-spacing: 1.5px; font-family: 'JetBrains Mono', monospace; }
-        .pricing-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
-        .pricing-card p { font-size: 14px; opacity: 0.85; line-height: 1.6; word-break: keep-all; }
-        .pricing-card .price-amount { font-size: 36px; font-weight: 800; margin: 16px 0 4px; font-family: 'JetBrains Mono', monospace; }
-        .pricing-card .price-note { font-size: 13px; opacity: 0.7; }
+        /* ===== TRUST ===== */
+        .trust-list { display: flex; flex-direction: column; gap: 0; }
+        .trust-item {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .trust-item:last-child { border-bottom: none; }
+        .trust-check {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .trust-text {
+            font-size: 15px;
+            line-height: 1.55;
+            word-break: keep-all;
+        }
+        .trust-text strong { font-weight: 700; }
+
+        /* ===== PRICING ===== */
+        .pricing-block {
+            background: var(--text);
+            color: white;
+            border-radius: var(--card-radius);
+            padding: 40px 28px;
+            text-align: center;
+        }
+        .pricing-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            opacity: 0.4;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .pricing-block h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .pricing-block .desc {
+            font-size: 14px;
+            opacity: 0.6;
+            line-height: 1.65;
+            word-break: keep-all;
+            margin-bottom: 24px;
+        }
+        .pricing-amount {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .pricing-note {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            opacity: 0.4;
+            letter-spacing: 0.5px;
+        }
 
         /* ===== FAQ ===== */
-        .faq-section { margin-bottom: 28px; }
-        .faq-item { background: var(--card); border-radius: 14px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.02); }
-        .faq-q { padding: 18px 20px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .faq-q::after { content: '+'; font-size: 20px; font-weight: 300; color: var(--light); transition: transform 0.2s; }
+        .faq-list { display: flex; flex-direction: column; gap: 0; }
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+        }
+        .faq-q {
+            padding: 20px 0;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: -0.2px;
+        }
+        .faq-q::after {
+            content: '+';
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 300;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
         .faq-item.open .faq-q::after { content: '−'; }
-        .faq-a { padding: 0 20px 18px; font-size: 14px; color: var(--sub); line-height: 1.6; display: none; word-break: keep-all; }
+        .faq-a {
+            padding: 0 0 20px;
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.65;
+            display: none;
+            word-break: keep-all;
+        }
         .faq-item.open .faq-a { display: block; }
 
-        /* ===== 주의사항 ===== */
-        .warning-card { background: #FFF5F5; border-radius: 16px; padding: 24px 20px; margin-bottom: 28px; }
-        .warning-card h3 { font-size: 16px; font-weight: 700; color: #E03131; margin-bottom: 14px; }
-        .warning-card ul { list-style: none; padding: 0; }
-        .warning-card li { font-size: 14px; color: var(--sub); padding: 6px 0; padding-left: 20px; position: relative; line-height: 1.55; word-break: keep-all; }
-        .warning-card li::before { content: '•'; position: absolute; left: 4px; color: #E03131; font-weight: 700; }
-        .warning-card li b { color: #E03131; }
+        /* ===== NOTICE ===== */
+        .notice {
+            background: var(--bg-alt);
+            border-radius: var(--card-radius);
+            padding: 28px 24px;
+        }
+        .notice-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            letter-spacing: -0.2px;
+        }
+        .notice ul { list-style: none; }
+        .notice li {
+            font-size: 13px;
+            color: var(--text-sub);
+            padding: 5px 0 5px 16px;
+            position: relative;
+            line-height: 1.55;
+            word-break: keep-all;
+        }
+        .notice li::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
 
-        /* ===== 고정 플로팅 바 ===== */
-        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(0,0,0,0.08); z-index: 100; display: flex; gap: 10px; justify-content: center; }
-        .floating-bar .cta-btn { flex: 1; max-width: 200px; padding: 14px 0; border-radius: 12px; font-size: 14px; font-weight: 700; text-align: center; text-decoration: none; border: none; cursor: pointer; font-family: inherit; }
-        .cta-primary { background: var(--accent); color: white; }
-        .cta-secondary { background: var(--bg); color: var(--main); border: 1px solid var(--border); }
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 32px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
 
-        .footer { text-align: center; font-size: 11px; color: var(--light); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; }
+        /* ===== FLOATING BAR ===== */
+        .floating-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 14px 24px;
+            padding-bottom: calc(14px + env(safe-area-inset-bottom));
+            border-top: 1px solid var(--border);
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .floating-bar .f-btn {
+            flex: 1;
+            max-width: 200px;
+            padding: 13px 0;
+            border-radius: 48px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            border: none;
+            cursor: pointer;
+        }
+        .f-btn-primary { background: var(--text); color: white; }
+        .f-btn-secondary { background: var(--bg-alt); color: var(--text); border: 1px solid rgba(0,0,0,0.1) !important; }
 
-        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #333D4B; color: white; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 999; pointer-events: none; }
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--text);
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 12px 24px;
+            border-radius: 48px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 999;
+            pointer-events: none;
+        }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
     <div class="container">
 
-        <!-- ① HERO -->
+        <!-- NAV -->
+        <div class="nav">
+            <div class="nav-logo">LINKER</div>
+            <div class="nav-tag">private matching</div>
+        </div>
+
+        <!-- HERO -->
         <div class="hero">
-            <div class="hero-badge">PRIVATE MATCHING</div>
-            <h1>한다리 건너,<br><span>프라이빗</span> 소개팅 채널</h1>
+            <div class="hero-eyebrow">invite-only channel</div>
+            <h1>한다리 건너,<br>프라이빗 소개팅 채널</h1>
             <p>신뢰할 수 있는 사람이 직접 추천한 사람들만.<br>소수로 시작하는 프라이빗 매칭.</p>
             <div class="hero-cta">
-                <a href="https://hanheumyang-web.github.io/linker/" class="btn-primary">채널 둘러보기</a>
-                <a href="https://hanheumyang-web.github.io/linker/upload.html" class="btn-ghost">지인 등록하기</a>
+                <a href="https://hanheumyang-web.github.io/linker/" class="btn-fill">Browse</a>
+                <a href="https://hanheumyang-web.github.io/linker/upload.html" class="btn-outline">Register</a>
             </div>
         </div>
 
-        <!-- ② 핵심 가치 3카드 -->
-        <div class="value-section">
-            <div class="value-card">
-                <div class="value-icon blue">🔒</div>
-                <div class="value-body">
+        <!-- VALUE -->
+        <div class="section">
+            <div class="section-eyebrow">why linker</div>
+            <div class="section-title">프로필이 아무에게나<br>보이지 않습니다</div>
+            <div class="section-desc">채널 오너가 초대한 사람만, 한다리 건너 아는 사람들만.</div>
+
+            <div class="value-list">
+                <div class="value-item">
+                    <div class="value-num en">01</div>
                     <h3>프라이빗 채널</h3>
                     <p>채널 오너가 직접 초대한 사람만 볼 수 있어요. 불특정 다수에게 내 프로필이 노출되지 않습니다.</p>
                 </div>
-            </div>
-            <div class="value-card">
-                <div class="value-icon green">🤝</div>
-                <div class="value-body">
+                <div class="value-item">
+                    <div class="value-num en">02</div>
                     <h3>100% 지인 보증</h3>
                     <p>모든 프로필은 지인이 직접 등록합니다. 신원을 알 수 없는 사람은 절대 없어요.</p>
                 </div>
-            </div>
-            <div class="value-card">
-                <div class="value-icon orange">🎯</div>
-                <div class="value-body">
+                <div class="value-item">
+                    <div class="value-num en">03</div>
                     <h3>소규모 큐레이션</h3>
                     <p>한다리만 건너면 알 수 있던 사람들. 수백 명 속에서 헤매지 않아요.</p>
                 </div>
             </div>
         </div>
 
-        <!-- ③ 페인포인트 비교 -->
-        <div class="pain-section">
-            <div class="pain-card">
-                <div class="pain-header">
-                    <div class="pain-header-badge">WHY LINKER?</div>
-                    <h3>기존 데이팅앱, 이래도 괜찮나요?</h3>
-                </div>
-                <div class="pain-compare">
-                    <div class="pain-col bad">
-                        <div class="pain-col-label">일반 데이팅앱</div>
-                        <div class="pain-stat">
-                            <div class="pain-stat-num">15~50만원</div>
-                            <div class="pain-stat-desc">실제 만남 1회까지<br>평균 지출액</div>
-                        </div>
-                        <div class="pain-stat">
-                            <div class="pain-stat-num">3% 미만</div>
-                            <div class="pain-stat-desc">매칭 → 실제 만남<br>전환율</div>
-                        </div>
-                        <div class="pain-stat" style="margin-bottom:0;">
-                            <div class="pain-stat-num">무분별</div>
-                            <div class="pain-stat-desc">여기저기 팔리는<br>내 프로필과 사진</div>
-                        </div>
+        <!-- COMPARISON -->
+        <div class="section">
+            <div class="section-eyebrow">comparison</div>
+            <div class="section-title">기존 데이팅앱,<br>이래도 괜찮나요?</div>
+
+            <div class="compare-grid">
+                <div class="compare-col old">
+                    <div class="compare-label">Others</div>
+                    <div class="compare-stat">
+                        <div class="compare-stat-num en">15~50만</div>
+                        <div class="compare-stat-desc">실제 만남 1회까지 평균 지출</div>
                     </div>
-                    <div class="pain-divider"></div>
-                    <div class="pain-col good">
-                        <div class="pain-col-label">LINKER</div>
-                        <div class="pain-stat">
-                            <div class="pain-stat-num">3만원</div>
-                            <div class="pain-stat-desc">성사 시에만 1회<br>불발 시 무료</div>
-                        </div>
-                        <div class="pain-stat">
-                            <div class="pain-stat-num">지인 검증</div>
-                            <div class="pain-stat-desc">아는 사람이 보증한<br>신뢰도 높은 매칭</div>
-                        </div>
-                        <div class="pain-stat" style="margin-bottom:0;">
-                            <div class="pain-stat-num">프라이빗</div>
-                            <div class="pain-stat-desc">믿을 수 있는 사람만<br>볼 수 있는 채널</div>
-                        </div>
+                    <div class="compare-stat">
+                        <div class="compare-stat-num en">&lt;3%</div>
+                        <div class="compare-stat-desc">매칭→실제 만남 전환율</div>
+                    </div>
+                    <div class="compare-stat">
+                        <div class="compare-stat-num en" style="font-size:20px;">무분별 노출</div>
+                        <div class="compare-stat-desc">여기저기 팔리는 내 프로필</div>
                     </div>
                 </div>
-                <div class="pain-bottom">내 소중한 프로필, 아무에게나 보여주지 마세요</div>
+                <div class="compare-col new">
+                    <div class="compare-label">Linker</div>
+                    <div class="compare-stat">
+                        <div class="compare-stat-num en">3만원</div>
+                        <div class="compare-stat-desc">성사 시에만, 불발 시 무료</div>
+                    </div>
+                    <div class="compare-stat">
+                        <div class="compare-stat-num en">검증됨</div>
+                        <div class="compare-stat-desc">아는 사람이 보증한 매칭</div>
+                    </div>
+                    <div class="compare-stat">
+                        <div class="compare-stat-num en">Private</div>
+                        <div class="compare-stat-desc">믿을 수 있는 사람만 보는 채널</div>
+                    </div>
+                </div>
             </div>
+            <div class="compare-bottom">내 소중한 프로필, 아무에게나 보여주지 마세요.</div>
         </div>
 
-        <!-- ④ 이용 흐름 3단계 -->
-        <div class="flow-section">
-            <div class="section-header">이렇게 진행돼요</div>
-            <div class="section-sub">3단계면 충분해요</div>
+        <!-- STEPS -->
+        <div class="section">
+            <div class="section-eyebrow">how it works</div>
+            <div class="section-title">3단계면 충분해요</div>
+            <div class="section-desc"></div>
 
-            <div class="flow-step">
-                <div class="flow-track">
-                    <div class="flow-num">1</div>
-                    <div class="flow-line"></div>
+            <div class="steps">
+                <div class="step-item">
+                    <div class="step-track">
+                        <div class="step-num en">1</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-body">
+                        <h4>채널 오너가 지인 프로필 업로드</h4>
+                        <p>채널 오너(방장)가 초대받은 지인들의 프로필을 직접 등록합니다. 본인이 직접 가입할 필요 없어요.</p>
+                        <div class="step-tag">~2 min</div>
+                    </div>
                 </div>
-                <div class="flow-card">
-                    <h4>📝 채널 오너가 지인 프로필 업로드</h4>
-                    <p>채널 오너(방장)가 초대받은 지인들의 프로필을 직접 등록합니다. 본인이 직접 가입할 필요 없어요.</p>
-                    <div class="flow-tag">소요 시간: 약 2분</div>
+                <div class="step-item">
+                    <div class="step-track">
+                        <div class="step-num en">2</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-body">
+                        <h4>채널에서 마음에 드는 사람에게 신청</h4>
+                        <p>채널 링크를 받고 프로필을 둘러보세요. 마음에 드는 사람이 있다면 무료로 만남을 신청할 수 있어요.</p>
+                        <div class="step-tag">free to apply</div>
+                    </div>
                 </div>
-            </div>
-            <div class="flow-step">
-                <div class="flow-track">
-                    <div class="flow-num">2</div>
-                    <div class="flow-line"></div>
-                </div>
-                <div class="flow-card">
-                    <h4>💘 채널에서 마음에 드는 사람에게 신청</h4>
-                    <p>채널 링크를 받고 프로필을 둘러보세요. 마음에 드는 사람이 있다면 무료로 만남을 신청할 수 있어요.</p>
-                    <div class="flow-tag">신청은 무료</div>
-                </div>
-            </div>
-            <div class="flow-step">
-                <div class="flow-track">
-                    <div class="flow-num">3</div>
-                </div>
-                <div class="flow-card">
-                    <h4>✅ 운영자 확인 후 안전하게 연결</h4>
-                    <p>운영자가 신청을 검토하고 상대방에게 전달합니다. 양측 모두 수락하면 결제 안내 후 연락처가 교환돼요.</p>
-                    <div class="flow-tag">양측 수락 시에만 매칭비 발생</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ⑤ 신뢰 시그널 -->
-        <div class="trust-section">
-            <div class="section-header">안심하세요</div>
-            <div class="section-sub">LINKER가 약속합니다</div>
-            <div class="trust-card">
-                <div class="trust-item">
-                    <div class="trust-check">✓</div>
-                    <div class="trust-text">모든 프로필은 <b>실명 주선자가 보증</b>합니다. 신원 불명의 프로필은 존재하지 않아요.</div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-check">✓</div>
-                    <div class="trust-text">개인정보는 <b>매칭 목적 외 절대 사용되지 않으며</b>, 매칭 종료 후 안전하게 파기됩니다.</div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-check">✓</div>
-                    <div class="trust-text">연락처는 <b>양측 모두 수락한 이후</b>에만 교환됩니다. 일방적 노출은 없어요.</div>
-                </div>
-                <div class="trust-item">
-                    <div class="trust-check">✓</div>
-                    <div class="trust-text">매칭이 불발되면 <b>비용은 일절 발생하지 않습니다.</b></div>
+                <div class="step-item">
+                    <div class="step-track">
+                        <div class="step-num en">3</div>
+                    </div>
+                    <div class="step-body">
+                        <h4>운영자 확인 후 안전하게 연결</h4>
+                        <p>운영자가 신청을 검토하고 상대방에게 전달합니다. 양측 모두 수락하면 결제 안내 후 연락처가 교환돼요.</p>
+                        <div class="step-tag">pay only on match</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 매칭비 카드 -->
-        <div class="pricing-card">
-            <div class="price-badge">MATCHING FEE</div>
-            <h3>매칭비 안내</h3>
-            <p>양측 모두 수락한 경우에만 발생하며,<br>무분별한 신청을 방지하기 위한 최소한의 허들입니다.</p>
-            <div class="price-amount">30,000원</div>
-            <div class="price-note">매칭 성사 시 1회 / 불발 시 무료</div>
+        <!-- TRUST -->
+        <div class="section">
+            <div class="section-eyebrow">trust & safety</div>
+            <div class="section-title">안심하세요</div>
+
+            <div class="trust-list">
+                <div class="trust-item">
+                    <div class="trust-check">→</div>
+                    <div class="trust-text">모든 프로필은 <strong>실명 주선자가 보증</strong>합니다. 신원 불명의 프로필은 존재하지 않아요.</div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">→</div>
+                    <div class="trust-text">개인정보는 <strong>매칭 목적 외 절대 사용되지 않으며</strong>, 매칭 종료 후 안전하게 파기됩니다.</div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">→</div>
+                    <div class="trust-text">연락처는 <strong>양측 모두 수락한 이후</strong>에만 교환됩니다. 일방적 노출은 없어요.</div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">→</div>
+                    <div class="trust-text">매칭이 불발되면 <strong>비용은 일절 발생하지 않습니다.</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRICING -->
+        <div class="section">
+            <div class="pricing-block">
+                <div class="pricing-eyebrow">matching fee</div>
+                <h3>매칭비 안내</h3>
+                <div class="desc">양측 모두 수락한 경우에만 발생하며,<br>무분별한 신청을 방지하기 위한 최소한의 허들입니다.</div>
+                <div class="pricing-amount en">₩30,000</div>
+                <div class="pricing-note">per match / free if unmatched</div>
+            </div>
         </div>
 
         <!-- FAQ -->
-        <div class="faq-section">
-            <div class="section-header" style="margin-bottom: 16px;">자주 묻는 질문</div>
+        <div class="section">
+            <div class="section-eyebrow">faq</div>
+            <div class="section-title">자주 묻는 질문</div>
+            <div style="height: 8px;"></div>
 
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">프라이빗 채널이 뭔가요?</div>
-                <div class="faq-a">채널 오너(방장)가 자신의 지인들만 모아 만든 소규모 소개팅 공간이에요. 불특정 다수가 아닌, 한다리 건너 아는 사람들만 모여 있어 안전합니다.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">내 사진이 아무에게나 보이나요?</div>
-                <div class="faq-a">아닙니다. 같은 채널에 속한 사람들에게만 프로필이 보이며, 닉네임은 익명(예: @다정한_토끼)으로 보호됩니다. 실명이나 연락처는 매칭 수락 전까지 절대 노출되지 않아요.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">매칭을 거절하면 불이익이 있나요?</div>
-                <div class="faq-a">전혀 없습니다. 부담 없이 거절하실 수 있으며, 상대방에게는 "매칭이 성사되지 않았습니다"라고만 안내됩니다.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">연락처 교환은 어떻게 되나요?</div>
-                <div class="faq-a">양측 매칭비 결제 확인 후, 운영자가 안전하게 양측의 연락처를 전달해드립니다.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">채널 오너(방장) 리워드는 어떻게 받나요?</div>
-                <div class="faq-a">채널 내 매칭이 성사되면 운영자가 방장님께 직접 연락드려 리워드를 송금합니다. 별도 신청이 필요 없어요.</div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">프라이빗 채널이 뭔가요?</div>
+                    <div class="faq-a">채널 오너(방장)가 자신의 지인들만 모아 만든 소규모 소개팅 공간이에요. 불특정 다수가 아닌, 한다리 건너 아는 사람들만 모여 있어 안전합니다.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">내 사진이 아무에게나 보이나요?</div>
+                    <div class="faq-a">아닙니다. 같은 채널에 속한 사람들에게만 프로필이 보이며, 닉네임은 익명으로 보호됩니다. 실명이나 연락처는 매칭 수락 전까지 절대 노출되지 않아요.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">매칭을 거절하면 불이익이 있나요?</div>
+                    <div class="faq-a">전혀 없습니다. 부담 없이 거절하실 수 있으며, 상대방에게는 "매칭이 성사되지 않았습니다"라고만 안내됩니다.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">연락처 교환은 어떻게 되나요?</div>
+                    <div class="faq-a">양측 매칭비 결제 확인 후, 운영자가 안전하게 양측의 연락처를 전달해드립니다.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">채널 오너 리워드는 어떻게 받나요?</div>
+                    <div class="faq-a">채널 내 매칭이 성사되면 운영자가 방장님께 직접 연락드려 리워드를 송금합니다.</div>
+                </div>
             </div>
         </div>
 
-        <!-- 주의사항 -->
-        <div class="warning-card">
-            <h3>꼭 읽어주세요</h3>
-            <ul>
-                <li>프로필 등록은 <b>채널 오너(방장)만</b> 가능합니다. 본인이 직접 등록하는 것은 운영 정책에 위배됩니다.</li>
-                <li>매칭 <b>불발 시 비용은 일절 발생하지 않습니다.</b> 양측 수락 시에만 매칭비가 안내됩니다.</li>
-                <li>개인정보는 매칭 목적 외 <b>절대 사용되지 않으며</b>, 매칭 종료 후 안전하게 파기됩니다.</li>
-            </ul>
+        <!-- NOTICE -->
+        <div class="section">
+            <div class="notice">
+                <div class="notice-title">꼭 읽어주세요</div>
+                <ul>
+                    <li>프로필 등록은 채널 오너(방장)만 가능합니다. 본인 직접 등록은 운영 정책에 위배됩니다.</li>
+                    <li>매칭 불발 시 비용은 일절 발생하지 않습니다. 양측 수락 시에만 매칭비가 안내됩니다.</li>
+                    <li>개인정보는 매칭 목적 외 절대 사용되지 않으며, 매칭 종료 후 안전하게 파기됩니다.</li>
+                </ul>
+            </div>
         </div>
 
         <div class="footer">
-            © 2026 LINKER.<br>
-            지인 기반 프라이빗 매칭 서비스
+            © 2026 LINKER. All rights reserved.<br>
+            Private matching service.
         </div>
     </div>
 
-    <!-- 고정 플로팅 바 -->
+    <!-- FLOATING BAR -->
     <div class="floating-bar">
-        <a href="https://hanheumyang-web.github.io/linker/" class="cta-btn cta-primary">프로필 보러가기</a>
-        <a href="https://hanheumyang-web.github.io/linker/upload.html" class="cta-btn cta-secondary">지인 등록하기</a>
+        <a href="https://hanheumyang-web.github.io/linker/" class="f-btn f-btn-primary">Browse</a>
+        <a href="https://hanheumyang-web.github.io/linker/upload.html" class="f-btn f-btn-secondary">Register</a>
     </div>
 
     <div class="toast" id="toast"></div>
-
-    <script>
-        function toggleFaq(el) {
-            el.parentElement.classList.toggle('open');
-        }
-    </script>
 </body>
 </html>
