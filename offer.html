@@ -142,7 +142,7 @@
                     '<div class="card-title">나에게 온 매칭 요청 (' + req.ticket_number + ')</div>' +
                     photoHtml +
                     '<div class="info-row"><span class="info-label">내 닉네임</span> <span class="info-value">@' + targetProfile.nickname + '</span></div>' +
-                    '<div class="info-row"><span class="info-label">나이</span> <span class="info-value">' + targetProfile.age + '세</span></div>' +
+                    '<div class="info-row"><span class="info-label">나이</span> <span class="info-value">' + String(targetProfile.age).slice(-2) + '년생</span></div>' +
                     '<div class="info-row"><span class="info-label">직장</span> <span class="info-value">' + (targetProfile.job || '-') + '</span></div>' +
                     '<div class="info-row"><span class="info-label">위치</span> <span class="info-value">' + (targetProfile.location || '-') + '</span></div>' +
                     '<div class="info-row"><span class="info-label">목적</span> <span class="info-value">' + (targetProfile.goal || '-') + '</span></div>' +
