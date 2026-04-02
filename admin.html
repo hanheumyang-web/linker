@@ -146,11 +146,11 @@
                     thumbHtml +
                     '<div class="profile-info">' +
                         '<div class="profile-name">@' + p.nickname + '</div>' +
-                        '<div class="profile-meta">' + (p.age || '') + '세 · ' + (p.job || '') + ' · 주선자: ' + (p.referrer_name || '없음') + '</div>' +
+                        '<div class="profile-meta">' + String(p.age || '').slice(-2) + '년생 · ' + (p.job || '') + ' · 주선자: ' + (p.referrer_name || '없음') + '</div>' +
                     '</div>' +
                     '<button class="btn-delete" onclick="event.stopPropagation(); deleteProfile(\'' + p.id + '\', \'@' + p.nickname + '\')">삭제</button>' +
                     '<div class="profile-detail">' +
-                        '<div class="pd-row"><strong>나이</strong> ' + (p.age || '-') + '세</div>' +
+                        '<div class="pd-row"><strong>나이</strong> ' + String(p.age || '-').slice(-2) + '년생</div>' +
                         '<div class="pd-row"><strong>키</strong> ' + (p.height ? p.height + 'cm' : '-') + '</div>' +
                         '<div class="pd-row"><strong>MBTI</strong> ' + (p.mbti || '-') + '</div>' +
                         '<div class="pd-row"><strong>직장</strong> ' + (p.job || '-') + '</div>' +
