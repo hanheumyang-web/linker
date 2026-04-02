@@ -150,7 +150,7 @@
                     '</div>' +
                     '<button class="btn-delete" onclick="event.stopPropagation(); deleteProfile(\'' + p.id + '\', \'@' + p.nickname + '\')">삭제</button>' +
                     '<div class="profile-detail">' +
-                        '<div class="pd-row"><strong>나이</strong> ' + String(p.age || '-').slice(-2) + '년생</div>' +
+                        '<div class="pd-row"><strong>출생년도</strong> ' + String(p.age || '-').slice(-2) + '년생</div>' +
                         '<div class="pd-row"><strong>키</strong> ' + (p.height ? p.height + 'cm' : '-') + '</div>' +
                         '<div class="pd-row"><strong>MBTI</strong> ' + (p.mbti || '-') + '</div>' +
                         '<div class="pd-row"><strong>직장</strong> ' + (p.job || '-') + '</div>' +
@@ -166,7 +166,7 @@
                                 '<option value="남성"' + (p.gender === '남성' ? ' selected' : '') + '>남성</option>' +
                                 '<option value="여성"' + (p.gender === '여성' ? ' selected' : '') + '>여성</option>' +
                             '</select>' +
-                            '<label>나이</label>' +
+                            '<label>출생년도</label>' +
                             '<input type="number" id="age_' + p.id + '" value="' + (p.age || '') + '" style="width:60px;">' +
                             '<label>키</label>' +
                             '<input type="number" id="height_' + p.id + '" value="' + (p.height || '') + '" style="width:60px;" placeholder="cm">' +
